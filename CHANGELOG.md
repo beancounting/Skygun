@@ -4,6 +4,13 @@ Record user-visible changes, fixes, and important verification limits here with 
 
 ## Unreleased
 
+### 2026-10-03 — Cloud install and startup
+
+- Executed the saved locked-dependency installation and started the development server.
+- Saved refreshed `install_script` and `start_skill` environment drafts, including standalone-download generation and verification instructions.
+- Verified 24 simulation tests, TypeScript and both builds, a complete browser match/rematch, and the offline standalone match/rematch. Process-sandbox restrictions required the supported command escalation flow.
+- Environment configuration is saved as a draft; no environment publication, game deployment, or merge was performed. Actual Safari/iPad verification remains outstanding.
+
 ### 2026-10-03 — Download troubleshooting and review
 
 - Added a standalone `Skygun-play.html` build with inline JavaScript and CSS, generated from the same game source. It needs no development server or companion files.
