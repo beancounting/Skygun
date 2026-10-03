@@ -34,6 +34,7 @@ describe('projectile physics', () => {
 
   it('caps catch-up after a long interruption', () => {
     const game = createGame(); fire(game);
+    while (game.phase === 'windup') stepGame(game);
     const clock = new FixedClock(); clock.advance(game, 120);
     expect(game.projectile!.age).toBeCloseTo(0.1);
     clock.reset(); clock.advance(game, Number.NaN);
@@ -132,6 +133,26 @@ describe('damage and results', () => {
 });
 
 describe('turn commands and completion', () => {
+  it('winds up before launching once with locked aim and unchanged launch physics', () => {
+    const game = createGame();
+    fire(game);
+    expect(game.phase).toBe('windup');
+    expect(game.projectile).toBeNull();
+    expect(fire(game)).toBe(false);
+    expect(setAim(game, 0, { power: 100 })).toBe(false);
+    const ticks = Math.round(RULES.windupDuration / RULES.step);
+    for (let i = 0; i < ticks - 1; i++) stepGame(game);
+    expect(game.projectile).toBeNull();
+    stepGame(game);
+    expect(game.phase).toBe('flight');
+    expect(game.projectile!.age).toBe(0);
+    expect(Math.hypot(game.projectile!.vx, game.projectile!.vy)).toBeCloseTo(240 + 52 * 5.6);
+    expect(fire(game)).toBe(false);
+    expect(game.shots).toHaveLength(1);
+    stepGame(game);
+    expect(game.projectile!.age).toBe(RULES.step);
+  });
+
   it('gates aim by turn, clamps valid input and rejects nonfinite values', () => {
     const game = createGame();
     expect(setAim(game, 1, { power: 80 })).toBe(false);
@@ -164,7 +185,9 @@ describe('turn commands and completion', () => {
     { x: 600, y: 600, vx: 0, vy: 0, age: 12 },
     { x: 600, y: 1499, vx: 0, vy: 1000, age: 0 },
   ])('finishes boundary/timeout shots %#', projectile => {
-    const game = createGame(); fire(game); game.projectile = projectile;
+    const game = createGame(); fire(game);
+    while (game.phase === 'windup') stepGame(game);
+    game.projectile = projectile;
     stepGame(game); expect(game.impact!.kind).toBe('miss');
     finishShot(game); expect(game.phase).toBe('aiming');
   });

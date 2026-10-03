@@ -11,6 +11,14 @@ Record user-visible changes, fixes, and important verification limits here with 
 
 ## Unreleased
 
+### 2026-10-03 — Shot wind-up animation
+
+- Added a 450 ms wind-up: the robot's cocking lever pulls back, the barrel retracts, then both spring forward as the projectile launches. Mirrored for both players.
+- Locked aiming and repeat Fire during wind-up; pause/backgrounding freezes it. Launch power, wind and trajectory rules are unchanged. Reduced-motion mode keeps the mechanism still and uses the winding-up status instead.
+- Verified 25 simulation tests, 14 desktop/tablet Chromium checks, TypeScript/production build and a complete offline downloadable match/rematch. Visually inspected ready, pulled-back and release frames.
+- Paused the browser tests' virtual clock between explicit advances so assertions about sub-second animation timing are deterministic.
+- Prepared on `feat/shot-windup` for review; not yet published to the live game. Actual Safari/iPad checks remain outstanding.
+
 ### 2026-10-03 — First web publication approved; Pages activation pending
 
 - The user approved publishing a playable web link. Uploaded the verified static build to GitHub's `gh-pages` branch (`ca93fb2`), with `.nojekyll` and relative asset paths. This does not merge the source branch or change repository visibility.

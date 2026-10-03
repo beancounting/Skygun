@@ -18,7 +18,8 @@ async function setSlider(page: Page, name: 'Angle' | 'Power', value: number): Pr
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.clock.install();
+  await page.clock.install({ time: new Date('2026-01-01T00:00:00Z') });
+  await page.clock.pauseAt(new Date('2026-01-01T00:00:01Z'));
   await page.goto('/');
   await page.evaluate(() => window.skygun!.loadReplay(2026, []));
 });
@@ -73,7 +74,7 @@ test('keyboard aim, double-fire protection, and per-player aim memory', async ({
 
 test('help pauses a flying shot and resumes without a time jump', async ({ page }) => {
   await page.getByRole('button', { name: /Fire shot/ }).click();
-  await page.clock.runFor(300);
+  await page.clock.runFor(800);
   await page.getByRole('button', { name: 'How to play' }).click();
   const before = await page.evaluate(() => window.skygun!.snapshot());
   await page.clock.fastForward(30000);
@@ -84,6 +85,25 @@ test('help pauses a flying shot and resumes without a time jump', async ({ page 
   const after = await page.evaluate(() => window.skygun!.snapshot());
   expect(after.projectile!.age - before.projectile!.age).toBeLessThanOrEqual(0.11);
   expect(after.projectile!.age).toBeGreaterThan(before.projectile!.age);
+});
+
+test('wind-up locks controls, pauses safely, and launches once', async ({ page }) => {
+  await page.getByRole('button', { name: /Fire shot/ }).click();
+  await page.clock.runFor(150);
+  await expect(page.locator('#turn-label')).toHaveText('WINDING UP');
+  await expect(page.locator('#angle')).toBeDisabled();
+  await expect(page.locator('#fire')).toBeDisabled();
+  expect(await page.evaluate(() => window.skygun!.snapshot().projectile)).toBeNull();
+  await page.getByRole('button', { name: 'Pause game' }).click();
+  const before = await page.evaluate(() => window.skygun!.snapshot());
+  await page.clock.fastForward(10000);
+  expect(await page.evaluate(() => window.skygun!.snapshot())).toEqual(before);
+  await page.getByRole('button', { name: 'Back to the hill' }).click();
+  await page.clock.runFor(500);
+  const after = await page.evaluate(() => window.skygun!.snapshot());
+  expect(after.phase).toBe('flight');
+  expect(after.projectile).not.toBeNull();
+  expect(after.shots).toHaveLength(1);
 });
 
 test('visibility pause preserves the match and requires explicit resume', async ({ page }) => {

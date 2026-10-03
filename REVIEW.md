@@ -63,3 +63,9 @@ The user enabled Pages. The earlier network restriction no longer blocks the req
 The public page and both generated assets returned HTTP 200. An automated Chromium run using a tablet touch profile played the live five-shot match through the controls, reached “Moss takes the hill!”, and successfully rematched. No JavaScript errors or failed requests were observed. The test fixed the random seed in its browser context for reproducibility; production code and the deployed files were not altered by the test.
 
 Actual Mac Safari and iPad checks remain open. No source merge or visibility change was performed.
+
+## Shot wind-up follow-up (2026-10-03, not yet live)
+
+On `feat/shot-windup`, pressing Fire now starts a 450 ms wind-up before the projectile exists. The cocking lever pulls back, the barrel retracts, and both return forward at launch. Controls are locked from the initial press, so repeat fire cannot queue another shot. Pausing and tab backgrounding preserve wind-up progress. The animation mirrors for both players. Reduced-motion mode suppresses lever/barrel travel without changing simulation timing.
+
+Validation: 25 simulation tests, 14 desktop/tablet Chromium interaction checks, TypeScript/build, and the standalone offline full-match/rematch check passed. Ready, pulled-back and release frames were visually inspected. The existing launch and damage values are unchanged, and complete seeded matches still reach the same results. A real iPad/Safari check is still required. The live GitHub Pages build has not been updated with this change.
