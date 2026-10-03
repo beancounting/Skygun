@@ -9,6 +9,7 @@ export const RULES = {
   blastRadius: 100,
   maxDamage: 42,
   maxFlight: 12,
+  windupDuration: 0.45,
   impactDuration: 0.8,
   handoffDuration: 0.65,
   minAngle: 5,
@@ -18,7 +19,7 @@ export const RULES = {
 } as const;
 
 export type PlayerId = 0 | 1;
-export type Phase = 'aiming' | 'flight' | 'impact' | 'handoff' | 'gameover';
+export type Phase = 'aiming' | 'windup' | 'flight' | 'impact' | 'handoff' | 'gameover';
 export type Result = PlayerId | 'draw' | null;
 export type Point = { x: number; y: number };
 export type Aim = { angle: number; power: number };
@@ -101,6 +102,17 @@ export function barrelDirection(robot: Robot, player: PlayerId): Point {
 export function fire(game: Game): boolean {
   if (game.phase !== 'aiming') return false;
   const robot = game.robots[game.active];
+  game.phase = 'windup';
+  game.phaseTime = 0;
+  game.projectile = null;
+  game.impact = null;
+  game.trail = [];
+  game.shots.push({ player: game.active, angle: robot.angle, power: robot.power });
+  return true;
+}
+
+function launch(game: Game): void {
+  const robot = game.robots[game.active];
   const direction = barrelDirection(robot, game.active);
   const speed = 240 + robot.power * 5.6;
   game.projectile = {
@@ -110,10 +122,6 @@ export function fire(game: Game): boolean {
   };
   game.phase = 'flight';
   game.phaseTime = 0;
-  game.impact = null;
-  game.trail = [];
-  game.shots.push({ player: game.active, angle: robot.angle, power: robot.power });
-  return true;
 }
 
 export function advanceProjectile(p: Projectile, wind: number, dt: number): Projectile {
@@ -209,7 +217,9 @@ export function resolveImpact(game: Game, point: Point, kind: Impact['kind']): v
 export function stepGame(game: Game): void {
   if (game.phase === 'aiming' || game.phase === 'gameover') return;
   game.phaseTime += RULES.step;
-  if (game.phase === 'flight' && game.projectile) {
+  if (game.phase === 'windup') {
+    if (game.phaseTime + 1e-10 >= RULES.windupDuration) launch(game);
+  } else if (game.phase === 'flight' && game.projectile) {
     const previous = game.projectile;
     const next = advanceProjectile(previous, game.wind, RULES.step);
     const hit = findCollision(game, previous, next);

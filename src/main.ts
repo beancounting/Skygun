@@ -101,6 +101,7 @@ function updateUI(): void {
   let banner = `${PLAYER_NAMES[game.active].toUpperCase()}, TAKE YOUR SHOT`;
   let title = 'Make it count.';
   let hint = 'Adjust your aim, then let it fly.';
+  if (game.phase === 'windup') { banner = 'WINDING UP'; title = 'Here it comes…'; hint = 'Pull back. Let it fly.'; }
   if (game.phase === 'flight') { banner = 'EYES ON THE SKY'; title = 'There it goes…'; hint = 'A good miss teaches you something.'; }
   if (game.phase === 'impact') {
     const total = game.impact!.damage[0] + game.impact!.damage[1];
@@ -126,6 +127,8 @@ function updateUI(): void {
     announce(heading + ' Play again for a fresh match.');
   } else if (game.phase === 'aiming') {
     announce(`Player ${game.active + 1}, ${PLAYER_NAMES[game.active]}'s turn. Wind ${Math.abs(game.wind)} ${game.wind === 0 ? 'calm' : windDirection}. Moss ${game.robots[0].health} health. Ember ${game.robots[1].health} health.`);
+  } else if (game.phase === 'windup') {
+    announce(`${PLAYER_NAMES[game.active]} is winding up the shot.`);
   } else if (game.phase === 'impact') {
     announce(`${banner}. Moss ${game.robots[0].health} health. Ember ${game.robots[1].health} health.`);
   }

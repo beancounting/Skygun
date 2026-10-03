@@ -40,6 +40,11 @@ function drawRobot(ctx: CanvasRenderingContext2D, game: Game, player: PlayerId, 
   const y = screenY(robot.y);
   const active = game.active === player && game.phase === 'aiming';
   const direction = barrelDirection(robot, player);
+  const winding = game.active === player && game.phase === 'windup';
+  // Pull back slowly, then release over the final 20% of the wind-up.
+  const progress = winding ? Math.min(1, game.phaseTime / RULES.windupDuration) : 0;
+  const pull = progress < 0.8 ? Math.sin(progress / 0.8 * Math.PI / 2) : (1 - progress) / 0.2;
+  const travel = reducedMotion ? 0 : pull;
   const damaged = game.phase === 'impact' && (game.impact?.damage[player] ?? 0) > 0;
   ctx.save();
   ctx.translate(x, y);
@@ -56,7 +61,8 @@ function drawRobot(ctx: CanvasRenderingContext2D, game: Game, player: PlayerId, 
   ctx.strokeStyle = INK;
   ctx.lineWidth = 14;
   ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(direction.x * 34, -direction.y * 34); ctx.stroke();
+  const barrelLength = 34 - travel * 11;
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(direction.x * barrelLength, -direction.y * barrelLength); ctx.stroke();
   ctx.strokeStyle = '#f4df9c'; ctx.lineWidth = 8; ctx.stroke();
   ctx.lineWidth = 3;
   roundRect(ctx, -24, -23, 48, 36, 12, PLAYER_COLOURS[player], INK);
@@ -72,6 +78,15 @@ function drawRobot(ctx: CanvasRenderingContext2D, game: Game, player: PlayerId, 
   ctx.strokeStyle = INK;
   ctx.beginPath(); ctx.moveTo(-9, -23); ctx.lineTo(-12, -34); ctx.stroke();
   ctx.beginPath(); ctx.arc(-12, -36, 4, 0, Math.PI * 2); ctx.fillStyle = '#f8d876'; ctx.fill(); ctx.stroke();
+
+  // A visible cocking lever mirrors with the robot's firing direction.
+  const facing = player === 0 ? 1 : -1;
+  const leverX = -facing * (24 + travel * 17);
+  const leverY = -39 + travel * 10;
+  ctx.strokeStyle = INK; ctx.lineWidth = 4; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-facing * 18, -12); ctx.lineTo(leverX, leverY); ctx.stroke();
+  ctx.fillStyle = winding ? '#ffdc75' : '#f4df9c';
+  ctx.beginPath(); ctx.arc(leverX, leverY, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
 
   if (active) {
     ctx.setLineDash([4, 7]); ctx.lineWidth = 2; ctx.strokeStyle = INK;

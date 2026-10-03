@@ -4,12 +4,21 @@ Record user-visible changes, fixes, and important verification limits here with 
 
 ## Published — 2026-10-03
 
+- Published the lever/barrel wind-up update from `2b08ebd` as Pages build `b0ef87a`. GitHub reports the build complete. Verified the new JavaScript asset and winding-up status on all five shots of a complete live match, followed by rematch, in tablet-profile Chromium with no errors.
 - The first playable local duel is live at https://beancounting.github.io/Skygun/ after the user enabled Pages. GitHub reports `built`, serving `gh-pages` from `/` with HTTPS enforced.
 - Verified the public HTML/CSS/JS returned HTTP 200 and completed a five-shot match plus rematch on the live site in Chromium with a tablet touch profile. No JavaScript errors or failed requests occurred.
 - Updated the README with the verified play link. No download or installation is required to use the hosted game.
 - Source `main` and repository visibility remain unchanged. Actual Mac Safari and iPad verification remains outstanding; touch emulation is not device certification.
 
 ## Unreleased
+
+### 2026-10-03 — Shot wind-up animation
+
+- Added a 450 ms wind-up: the robot's cocking lever pulls back, the barrel retracts, then both spring forward as the projectile launches. Mirrored for both players.
+- Locked aiming and repeat Fire during wind-up; pause/backgrounding freezes it. Launch power, wind and trajectory rules are unchanged. Reduced-motion mode keeps the mechanism still and uses the winding-up status instead.
+- Verified 25 simulation tests, 14 desktop/tablet Chromium checks, TypeScript/production build and a complete offline downloadable match/rematch. Visually inspected ready, pulled-back and release frames.
+- Paused the browser tests' virtual clock between explicit advances so assertions about sub-second animation timing are deterministic.
+- Implemented on `feat/shot-windup`; subsequently published with approval (see Published above). Actual Safari/iPad checks remain outstanding.
 
 ### 2026-10-03 — First web publication approved; Pages activation pending
 
