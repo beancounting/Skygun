@@ -4,7 +4,7 @@ Little robots. Big shots. A small, original browser artillery game for two peopl
 
 **Milestone 1:** a complete local duel on fixed terrain. Aim, read the wind, fire, and bring the other robot to zero health. Three solid hits usually win. Blast damage can hurt either player. Wind stays the same for both turns in a round.
 
-Terrain destruction, computer play, sound, and publication are later milestones. See [the approved plan](PLAN.md). Nothing has been deployed.
+Terrain destruction, computer play, and sound are later milestones. See [the approved plan](PLAN.md). The first web publication is now approved: the static build has been uploaded to `gh-pages`, but Pages activation and verification of a live link are pending.
 
 ## Downloading and opening the game
 
@@ -19,7 +19,7 @@ npm run build:download
 
 Download **`dist-download/Skygun-play.html`** and open that entire file in a current desktop browser on your Mac (Open With → Safari or Chrome). It contains the game, styles and artwork, requires no Node installation on the playing device, and makes no external requests. Do not download only an individual source file. The Cloud build artifact can be supplied directly, so players do not need to run these build commands.
 
-The standalone document is tested offline in Chromium; actual Mac Safari file opening is not yet verified. On iPad, Files/Quick Look may show a preview without running the game. A hosted HTTPS link in Safari remains the intended iPad workflow. No site has been published; publication still requires approval.
+The standalone document is tested offline in Chromium; actual Mac Safari file opening is not yet verified. On iPad, Files/Quick Look may show a preview without running the game. A hosted HTTPS link in Safari remains the intended iPad workflow. The user has approved the first publication; Pages activation is pending.
 
 To recheck the downloadable edition in this Cloud instance:
 
@@ -97,11 +97,15 @@ skygun.loadReplay(seed, shots)    // Restore a completed-shot history
 
 Copy the seed and shots when reporting an issue. Shot logs preserve player, angle, and power; snapshots additionally show in-flight state. Replay accepts valid alternating turns, executes the shared physics, and ends at the next aim state or game over. These helpers are omitted from production builds.
 
-## Eventual GitHub Pages hosting
+## GitHub Pages hosting
 
 Vite uses `base: './'`; generated asset URLs are relative and there is no client-side router. The production build can therefore live under a repository subdirectory such as `/Skygun/`. Validate that prefix before any release.
 
-Publication, repository visibility changes, and merging require approval. This milestone contains no deployment workflow.
+The user has approved publishing the first playable version. The release command is `npm run publish:pages`; it builds and uploads only the static output to `gh-pages`, preserving the source branch and repository visibility. This command writes to GitHub and should only be used for an approved release. It never force-pushes.
+
+GitHub Pages must be enabled in repository **Settings → Pages**, with **Deploy from a branch**, branch **gh-pages**, folder **/ (root)**. A successful branch upload does not by itself enable Pages. GitHub account/repository eligibility still applies; do not change repository visibility to work around it.
+
+Once enabled, verify the URL GitHub supplies: loading and refreshing, working assets, a complete shot/turn, and play on the actual iPad. No active public URL is claimed until checked. Source merging and visibility changes still require separate approval.
 
 ## Real-device checklist
 

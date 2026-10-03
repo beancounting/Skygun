@@ -4,6 +4,14 @@ Record user-visible changes, fixes, and important verification limits here with 
 
 ## Unreleased
 
+### 2026-10-03 — First web publication approved; Pages activation pending
+
+- The user approved publishing a playable web link. Uploaded the verified static build to GitHub's `gh-pages` branch (`ca93fb2`), with `.nojekyll` and relative asset paths. This does not merge the source branch or change repository visibility.
+- Added `npm run publish:pages` to reproduce the static upload from the same source, using a temporary Git index and a normal non-force push.
+- All 24 simulation tests and the TypeScript/production build passed before upload.
+- GitHub API access is blocked by the environment's network proxy, preventing automatic Pages activation. Saved additive network requirements for `api.github.com` and `beancounting.github.io` in the environment draft. Draft saving does not apply runtime network changes.
+- Pages must be enabled using `gh-pages` and `/ (root)` in the repository's Pages settings. A live public site and actual Safari/iPad behavior have not yet been verified.
+
 ### 2026-10-03 — Cloud install and startup
 
 - Executed the saved locked-dependency installation and started the development server.

@@ -49,3 +49,9 @@ Follow-up checks: TypeScript passed; all 24 simulation tests passed; the ordinar
 Direct `file://` navigation in the managed Chromium instance returned `ERR_BLOCKED_BY_ADMINISTRATOR`. The offline test therefore executes the actual generated HTML document with network access disabled; it does not establish direct Mac/Safari file-open compatibility. No browser policy was bypassed. Real Mac Safari and iPad checks remain open. On iPad, the intended launch method remains a hosted HTTPS page in Safari, not a Files/Quick Look preview; publication still requires approval.
 
 This review covered launch/distribution, controls, pause/resume, physics and test boundaries. No additional release-blocking defect was identified in that scope. Human game-feel and actual-device checks are still needed before declaring version one ready.
+
+## Publication follow-up (2026-10-03)
+
+The user explicitly approved publishing the first playable web version. The static release passed 24 simulation tests and the TypeScript/production build, then was uploaded to `gh-pages` as `ca93fb2`. Source `main` and repository visibility were not changed. There is no source merge.
+
+The GitHub API's HTTPS CONNECT request returned proxy 403, blocking automatic Pages configuration. API/Pages hostname requirements were saved additively in the environment draft, but this does not apply live network settings. The remaining action is repository Settings → Pages → Deploy from a branch → gh-pages → / (root) → Save. GitHub eligibility has not been established through the blocked API; if Pages is unavailable, do not change visibility without approval. Verify the URL supplied by GitHub before calling the site live.
