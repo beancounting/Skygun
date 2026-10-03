@@ -64,8 +64,10 @@ The public page and both generated assets returned HTTP 200. An automated Chromi
 
 Actual Mac Safari and iPad checks remain open. No source merge or visibility change was performed.
 
-## Shot wind-up follow-up (2026-10-03, not yet live)
+## Shot wind-up follow-up (2026-10-03)
 
 On `feat/shot-windup`, pressing Fire now starts a 450 ms wind-up before the projectile exists. The cocking lever pulls back, the barrel retracts, and both return forward at launch. Controls are locked from the initial press, so repeat fire cannot queue another shot. Pausing and tab backgrounding preserve wind-up progress. The animation mirrors for both players. Reduced-motion mode suppresses lever/barrel travel without changing simulation timing.
 
-Validation: 25 simulation tests, 14 desktop/tablet Chromium interaction checks, TypeScript/build, and the standalone offline full-match/rematch check passed. Ready, pulled-back and release frames were visually inspected. The existing launch and damage values are unchanged, and complete seeded matches still reach the same results. A real iPad/Safari check is still required. The live GitHub Pages build has not been updated with this change.
+Validation: 25 simulation tests, 14 desktop/tablet Chromium interaction checks, TypeScript/build, and the standalone offline full-match/rematch check passed. Ready, pulled-back and release frames were visually inspected. The existing launch and damage values are unchanged, and complete seeded matches still reach the same results. A real iPad/Safari check is still required.
+
+Published with user approval as Pages commit `b0ef87a` from source `2b08ebd`. GitHub reports `built`. The public page serves the new `index-le_Pv0AM.js` asset; a tablet-profile Chromium run verified winding-up status and locked controls on each of five shots, victory and rematch, with no JavaScript or request failures. No source merge or visibility change was performed.

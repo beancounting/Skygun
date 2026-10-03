@@ -4,6 +4,7 @@ Record user-visible changes, fixes, and important verification limits here with 
 
 ## Published — 2026-10-03
 
+- Published the lever/barrel wind-up update from `2b08ebd` as Pages build `b0ef87a`. GitHub reports the build complete. Verified the new JavaScript asset and winding-up status on all five shots of a complete live match, followed by rematch, in tablet-profile Chromium with no errors.
 - The first playable local duel is live at https://beancounting.github.io/Skygun/ after the user enabled Pages. GitHub reports `built`, serving `gh-pages` from `/` with HTTPS enforced.
 - Verified the public HTML/CSS/JS returned HTTP 200 and completed a five-shot match plus rematch on the live site in Chromium with a tablet touch profile. No JavaScript errors or failed requests occurred.
 - Updated the README with the verified play link. No download or installation is required to use the hosted game.
@@ -17,7 +18,7 @@ Record user-visible changes, fixes, and important verification limits here with 
 - Locked aiming and repeat Fire during wind-up; pause/backgrounding freezes it. Launch power, wind and trajectory rules are unchanged. Reduced-motion mode keeps the mechanism still and uses the winding-up status instead.
 - Verified 25 simulation tests, 14 desktop/tablet Chromium checks, TypeScript/production build and a complete offline downloadable match/rematch. Visually inspected ready, pulled-back and release frames.
 - Paused the browser tests' virtual clock between explicit advances so assertions about sub-second animation timing are deterministic.
-- Prepared on `feat/shot-windup` for review; not yet published to the live game. Actual Safari/iPad checks remain outstanding.
+- Implemented on `feat/shot-windup`; subsequently published with approval (see Published above). Actual Safari/iPad checks remain outstanding.
 
 ### 2026-10-03 — First web publication approved; Pages activation pending
 
