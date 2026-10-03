@@ -6,6 +6,31 @@ Little robots. Big shots. A small, original browser artillery game for two peopl
 
 Terrain destruction, computer play, sound, and publication are later milestones. See [the approved plan](PLAN.md). Nothing has been deployed.
 
+## Downloading and opening the game
+
+The review notes (`REVIEW.md`) and screenshot are not playable game files. Double-clicking the source `index.html`, or the normal `dist/index.html`, is also not the supported launch method: those editions need an HTTP server and their companion files.
+
+For a standalone desktop download, generate:
+
+```sh
+npm ci
+npm run build:download
+```
+
+Download **`dist-download/Skygun-play.html`** and open that entire file in a current desktop browser on your Mac (Open With → Safari or Chrome). It contains the game, styles and artwork, requires no Node installation on the playing device, and makes no external requests. Do not download only an individual source file. The Cloud build artifact can be supplied directly, so players do not need to run these build commands.
+
+The standalone document is tested offline in Chromium; actual Mac Safari file opening is not yet verified. On iPad, Files/Quick Look may show a preview without running the game. A hosted HTTPS link in Safari remains the intended iPad workflow. No site has been published; publication still requires approval.
+
+To recheck the downloadable edition in this Cloud instance:
+
+```sh
+PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:download
+```
+
+This executes the standalone document offline and plays a complete match/rematch. The managed browser blocks direct `file://` navigation, so this test does not certify actual-device file opening.
+
+See [CHANGELOG.md](CHANGELOG.md) for ongoing changes, fixes, and verification limits.
+
 ## Run in Codex Cloud or locally
 
 Use Node.js 22.12+ or Node.js 24 (validated with 24.19.0), with npm. In this Cloud environment, use the existing `/workspace/Skygun` checkout.

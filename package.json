@@ -11,6 +11,8 @@
     "test:e2e": "PLAYWRIGHT_BROWSERS_PATH=0 playwright test",
     "test:browsers": "PLAYWRIGHT_BROWSERS_PATH=0 playwright install chromium webkit",
     "build": "npm run check && vite build",
+    "build:download": "npm run check && node scripts/build-download.mjs",
+    "test:download": "npm run build:download && PLAYWRIGHT_BROWSERS_PATH=0 node scripts/test-download.mjs",
     "preview": "vite preview --host 0.0.0.0"
   },
   "devDependencies": {
