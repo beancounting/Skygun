@@ -7,6 +7,11 @@ export const RULES = {
   shellRadius: 5,
   robotRadius: 24,
   blastRadius: 100,
+  craterRadius: 72,
+  robotHalfWidth: 26,
+  robotGroundOffset: 28,
+  settleGravity: 700,
+  maxSettling: 2,
   maxDamage: 42,
   maxFlight: 12,
   windupDuration: 0.45,
@@ -19,7 +24,7 @@ export const RULES = {
 } as const;
 
 export type PlayerId = 0 | 1;
-export type Phase = 'aiming' | 'windup' | 'flight' | 'impact' | 'handoff' | 'gameover';
+export type Phase = 'aiming' | 'windup' | 'flight' | 'impact' | 'settling' | 'handoff' | 'gameover';
 export type Result = PlayerId | 'draw' | null;
 export type Point = { x: number; y: number };
 export type Aim = { angle: number; power: number };
@@ -31,6 +36,8 @@ export type Game = {
   seed: number;
   randomState: number;
   terrain: number[];
+  terrainRevision: number;
+  fallSpeeds: [number, number];
   robots: [Robot, Robot];
   active: PlayerId;
   turn: number;
@@ -67,13 +74,36 @@ export function groundAt(terrain: number[], x: number): number {
   return terrain[left] + ((terrain[left + 1] ?? terrain[left]) - terrain[left]) * (position - left);
 }
 
+/** Highest support across the upright cart's entire footprint; zero means void. */
+export function supportAt(terrain: number[], x: number): number {
+  const left = Math.max(0, x - RULES.robotHalfWidth);
+  const right = Math.min(terrain.length - 1, x + RULES.robotHalfWidth);
+  if (left > right) return 0;
+  let height = Math.max(groundAt(terrain, left), groundAt(terrain, right));
+  for (let i = Math.ceil(left); i <= Math.floor(right); i++) height = Math.max(height, terrain[i]);
+  return height;
+}
+
+/** Heightmap approximation: cut down to the blast's lower arc, without caves. */
+export function carveCrater(terrain: number[], centre: Point, radius: number = RULES.craterRadius): boolean {
+  if (!Number.isFinite(centre.x) || !Number.isFinite(centre.y) || !Number.isFinite(radius) || radius <= 0) return false;
+  let changed = false;
+  const left = Math.max(0, Math.ceil(centre.x - radius));
+  const right = Math.min(terrain.length - 1, Math.floor(centre.x + radius));
+  for (let x = left; x <= right; x++) {
+    const bottom = Math.max(0, centre.y - Math.sqrt(Math.max(0, radius ** 2 - (x - centre.x) ** 2)));
+    if (terrain[x] > bottom) { terrain[x] = bottom; changed = true; }
+  }
+  return changed;
+}
+
 export function createGame(seed = 2026): Game {
   const terrain = makeTerrain();
   const robot = (x: number): Robot => ({
-    x, y: groundAt(terrain, x) + 26, health: 100, angle: 55, power: 52,
+    x, y: supportAt(terrain, x) + RULES.robotGroundOffset, health: 100, angle: 55, power: 52,
   });
   const game: Game = {
-    seed: seed >>> 0, randomState: seed >>> 0, terrain,
+    seed: seed >>> 0, randomState: seed >>> 0, terrain, terrainRevision: 0, fallSpeeds: [0, 0],
     robots: [robot(205), robot(995)],
     active: 0, turn: 1, wind: 0, phase: 'aiming', phaseTime: 0,
     projectile: null, trail: [], impact: null, lastShots: [null, null], result: null, shots: [],
@@ -165,7 +195,10 @@ export function findCollision(game: Game, from: Point, to: Point): (Point & { ki
     for (const dx of [-RULES.shellRadius, -3, 0, 3, RULES.shellRadius]) {
       const x = p.x + dx;
       const lower = p.y - Math.sqrt(RULES.shellRadius ** 2 - dx ** 2);
-      if (x >= 0 && x <= RULES.width && lower <= groundAt(game.terrain, x)) return true;
+      if (x >= 0 && x <= RULES.width) {
+        const ground = groundAt(game.terrain, x);
+        if (ground > 0 && lower <= ground) return true;
+      }
     }
     return false;
   };
@@ -205,6 +238,7 @@ export function resolveImpact(game: Game, point: Point, kind: Impact['kind']): v
       damage[index] = Math.min(robot.health, blastDamage(Math.hypot(robot.x - point.x, robot.y - point.y) - RULES.robotRadius));
       robot.health = Math.max(0, robot.health - damage[index]);
     });
+    if (carveCrater(game.terrain, point)) game.terrainRevision++;
   }
   game.impact = { ...point, kind, damage };
   game.lastShots[game.active] = game.impact;
@@ -212,6 +246,26 @@ export function resolveImpact(game: Game, point: Point, kind: Impact['kind']): v
   game.projectile = null;
   game.phase = 'impact';
   game.phaseTime = 0;
+  game.fallSpeeds = [0, 0];
+}
+
+function settleRobots(game: Game): boolean {
+  let settled = true;
+  game.robots.forEach((robot, index) => {
+    const support = supportAt(game.terrain, robot.x);
+    const target = support > 0 ? support + RULES.robotGroundOffset : -RULES.robotRadius - 1;
+    if (robot.y > target) {
+      game.fallSpeeds[index] += RULES.settleGravity * RULES.step;
+      robot.y = Math.max(target, robot.y - game.fallSpeeds[index] * RULES.step);
+      // Bounded fallback guarantees handoff even if future tuning slows falls.
+      if (game.phaseTime >= RULES.maxSettling) robot.y = target;
+    }
+    if (robot.y <= target) {
+      game.fallSpeeds[index] = 0;
+      if (support === 0) robot.health = 0;
+    } else settled = false;
+  });
+  return settled;
 }
 
 export function stepGame(game: Game): void {
@@ -233,6 +287,11 @@ export function stepGame(game: Game): void {
       resolveImpact(game, { x: clamp(next.x, 0, RULES.width), y: clamp(next.y, 0, RULES.height) }, 'miss');
     }
   } else if (game.phase === 'impact' && game.phaseTime >= RULES.impactDuration) {
+    game.phase = 'settling';
+    game.phaseTime = 0;
+  } else if (game.phase === 'settling' && settleRobots(game)) {
+    // Resolve both landings/void eliminations before deciding victory or draw.
+    game.result = resultFor(game.robots);
     game.phase = game.result !== null ? 'gameover' : 'handoff';
     game.phaseTime = 0;
   } else if (game.phase === 'handoff' && game.phaseTime >= RULES.handoffDuration) {

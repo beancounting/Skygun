@@ -1,10 +1,10 @@
 import { expect, test, type Page } from '@playwright/test';
 
 const duel = [
-  { angle: 45, power: 42 },
-  { angle: 45, power: 37 },
   { angle: 45, power: 41 },
-  { angle: 45, power: 38 },
+  { angle: 45, power: 40 },
+  { angle: 45, power: 41 },
+  { angle: 45, power: 39 },
   { angle: 45, power: 38 },
 ];
 
@@ -27,6 +27,7 @@ test.beforeEach(async ({ page }) => {
 test('plays a full match using the controls, declares victory, and rematches', async ({ page }) => {
   test.setTimeout(60000);
   const errors: string[] = [];
+  const initialTerrain = await page.evaluate(() => window.skygun!.snapshot().terrain);
   page.on('pageerror', error => errors.push(error.message));
   for (let index = 0; index < duel.length; index++) {
     const shot = duel[index];
@@ -47,7 +48,40 @@ test('plays a full match using the controls, declares victory, and rematches', a
   await expect(page.locator('#turn-number')).toHaveText('TURN 01 / PLAYER 1');
   await expect(page.getByRole('slider', { name: 'Angle', exact: true })).toHaveValue('55');
   expect(await page.evaluate(() => window.skygun!.snapshot().shots)).toHaveLength(0);
+  expect(await page.evaluate(() => window.skygun!.snapshot().terrain)).toEqual(initialTerrain);
   expect(errors).toEqual([]);
+});
+
+test('a crater removes support and settling pauses safely before handoff', async ({ page }) => {
+  const before = await page.evaluate(() => window.skygun!.snapshot());
+  await setSlider(page, 'Angle', 45); await setSlider(page, 'Power', 41);
+  await page.getByRole('button', { name: /Fire shot/ }).click();
+  for (let i = 0; i < 100; i++) {
+    await page.clock.runFor(100);
+    if (await page.evaluate(() => window.skygun!.snapshot().phase === 'impact')) break;
+  }
+  const impact = await page.evaluate(() => window.skygun!.snapshot());
+  expect(impact.phase).toBe('impact');
+  expect(impact.terrainRevision).toBe(1);
+  expect(impact.terrain.some((h, i) => h < before.terrain[i])).toBe(true);
+  expect(impact.robots[1].y).toBe(before.robots[1].y);
+  for (let i = 0; i < 100; i++) {
+    await page.clock.runFor(16);
+    if (await page.evaluate(() => window.skygun!.snapshot().phase === 'settling')) break;
+  }
+  await expect(page.locator('#turn-label')).toHaveText('WATCH YOUR FOOTING');
+  await expect(page.locator('#fire')).toBeDisabled();
+  await page.getByRole('button', { name: 'Pause game' }).click();
+  const paused = await page.evaluate(() => window.skygun!.snapshot());
+  await page.clock.fastForward(10000);
+  expect(await page.evaluate(() => window.skygun!.snapshot())).toEqual(paused);
+  await page.getByRole('button', { name: 'Back to the hill' }).click();
+  await page.clock.runFor(3000);
+  const landed = await page.evaluate(() => window.skygun!.snapshot());
+  expect(landed.phase).toBe('aiming'); expect(landed.active).toBe(1);
+  expect(landed.robots[1].y).toBeLessThan(before.robots[1].y);
+  expect(landed.robots[1].health).toBe(impact.robots[1].health);
+  expect(landed.terrain).toEqual(impact.terrain);
 });
 
 test('keyboard aim, double-fire protection, and per-player aim memory', async ({ page }) => {

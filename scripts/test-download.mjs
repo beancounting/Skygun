@@ -22,7 +22,7 @@ try {
   await page.setContent(html);
   assert.equal(await page.locator('canvas').count(), 1);
   assert.equal(await page.evaluate(() => typeof window.skygun), 'undefined');
-  for (const [angle, power] of [[45, 42], [45, 37], [45, 41], [45, 38], [45, 38]]) {
+  for (const [angle, power] of [[45, 41], [45, 40], [45, 41], [45, 39], [45, 38]]) {
     for (const [id, value] of [['angle', angle], ['power', power]]) {
       const slider = page.locator(`#${id}`);
       const current = Number(await slider.inputValue());

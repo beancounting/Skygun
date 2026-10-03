@@ -47,7 +47,23 @@ Use explicit aiming, flight, impact, settling (when needed), handoff, and game-o
 | 4. Feel/device polish | Cohesive placeholder art, trail/impact/damage feedback, audio/mute, help and rematch polish. Clear ownership beyond colour; working resize/background/resume; comfortable real-iPad controls. | Safari/touch behaviour: browser tests, actual-device checklist, complete human playtests. |
 | 5. Release preparation | Production build suitable for GitHub Pages; clean checks, assets work under /Skygun/, direct load/refresh works, publishing documented. | Hosting paths: test production output under repository prefix. Publication remains separately approved. |
 
-Milestone 1 is the only implementation currently authorised. Save this plan, implement it on `feat/local-duel`, run available checks and present the diff/results for review. Terrain destruction, AI, publication, visibility changes and merging are excluded from that task.
+Milestone 1 and the subsequent wind-up improvement have been implemented and published with approval. The user has now authorised milestone 2: make craters and settling work on the existing map, on `feat/destructible-terrain`. Validate and present it for review before publication or merging. Computer play, additional maps and character redesign remain outside this task.
+
+## Map backlog (after the current crater milestone)
+
+- [ ] Consider two more designed layouts: High Divide (central ridge) and The Basin (raised edges, low middle), alongside the current rolling hill.
+- [ ] Playtest terrain shapes for clear shots and fair starting positions before adding a small map selector.
+- [ ] Keep random terrain deferred until the designed maps establish what is fun.
+
+These are recorded ideas, not additional work approved for the current milestone.
+
+## Character-refinement to-do (milestone 4)
+
+- [ ] Refine the existing robot silhouettes and expressions while keeping them readable at normal gameplay size.
+- [ ] Make the firing lever visibly part of the weapon rather than a second antenna. Explore a thicker handle connected to the barrel and a small spring that compresses during wind-up.
+- [ ] Check that aiming, pulling back and release are understandable on both robots, including at iPad size and with reduced motion enabled.
+
+This is deferred visual polish, not an immediate redesign or a request for additional characters. Keep the current playable art until this milestone is approved.
 
 ## Risks and testing
 

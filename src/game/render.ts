@@ -4,6 +4,23 @@ const INK = '#203f37';
 export const PLAYER_COLOURS = ['#3b8c79', '#d97856'] as const;
 export const PLAYER_NAMES = ['Moss', 'Ember'] as const;
 const screenY = (y: number) => RULES.height - y;
+const terrainPaths = new WeakMap<number[], { revision: number; fill: Path2D; edge: Path2D }>();
+
+function pathsFor(game: Game): { fill: Path2D; edge: Path2D } {
+  const cached = terrainPaths.get(game.terrain);
+  if (cached?.revision === game.terrainRevision) return cached;
+  const fill = new Path2D();
+  const edge = new Path2D();
+  fill.moveTo(0, RULES.height);
+  for (let x = 0; x <= RULES.width; x++) {
+    const y = screenY(game.terrain[x]);
+    fill.lineTo(x, y);
+    if (x === 0) edge.moveTo(x, y); else edge.lineTo(x, y);
+  }
+  fill.lineTo(RULES.width, RULES.height); fill.closePath();
+  terrainPaths.set(game.terrain, { revision: game.terrainRevision, fill, edge });
+  return { fill, edge };
+}
 
 function path(ctx: CanvasRenderingContext2D, points: Point[], fill: string, close = true): void {
   ctx.beginPath();
@@ -123,11 +140,9 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
   path(ctx, [{ x: 0, y: 468 }, { x: 120, y: 387 }, { x: 293, y: 471 }, { x: 580, y: 346 },
     { x: 744, y: 452 }, { x: 1005, y: 362 }, { x: 1200, y: 454 }, { x: 1200, y: 675 }, { x: 0, y: 675 }], '#a5c3a8');
 
-  const land: Point[] = [{ x: 0, y: RULES.height }];
-  for (let x = 0; x <= RULES.width; x += 2) land.push({ x, y: screenY(game.terrain[x]) });
-  land.push({ x: RULES.width, y: RULES.height });
-  path(ctx, land, '#3c6550');
-  ctx.save(); ctx.clip();
+  const land = pathsFor(game);
+  ctx.fillStyle = '#3c6550'; ctx.fill(land.fill);
+  ctx.save(); ctx.clip(land.fill);
   ctx.strokeStyle = '#53785a'; ctx.lineWidth = 2;
   for (let row = 0; row < 4; row++) {
     ctx.beginPath();
@@ -143,12 +158,7 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
     ctx.beginPath(); ctx.ellipse(x, y, i % 3 + 1.5, 1.3, 0.4, 0, Math.PI * 2); ctx.fill();
   }
   ctx.restore();
-  ctx.beginPath();
-  for (let x = 0; x <= RULES.width; x += 2) {
-    const y = screenY(game.terrain[x]);
-    if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
-  ctx.lineWidth = 7; ctx.strokeStyle = '#d6d886'; ctx.stroke();
+  ctx.lineWidth = 7; ctx.strokeStyle = '#d6d886'; ctx.stroke(land.edge);
 
   for (const x of [68, 320, 450, 785, 880, 1130]) {
     const y = screenY(groundAt(game.terrain, x));
@@ -202,6 +212,6 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
   ctx.textAlign = 'left'; ctx.fillStyle = '#dce4b9'; ctx.font = 'bold 12px ui-monospace, monospace';
   ctx.fillText('01  /  SUNPATCH RIDGE', 28, 640);
   ctx.fillStyle = '#a7bd96'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('LOCAL TWO-PLAYER  ·  FIXED TERRAIN', 28, 660);
+  ctx.fillText('LOCAL TWO-PLAYER  ·  DESTRUCTIBLE TERRAIN', 28, 660);
   ctx.restore();
 }
