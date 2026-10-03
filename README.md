@@ -2,11 +2,11 @@
 
 Little robots. Big shots. A small, original browser artillery game for two people sharing a device.
 
-**Milestone 1:** a complete local duel on fixed terrain. Aim, read the wind, fire, and bring the other robot to zero health. Three solid hits usually win. Blast damage can hurt either player. Wind stays the same for both turns in a round.
+**Milestone 2, prepared in this branch:** explosions carve craters into the existing hill, and robots settle onto remaining ground before the next turn. Landing does not cause damage; losing all support down to the bottom eliminates a robot. Rematch restores the original hill. Aim, read the wind, fire, and bring the other robot to zero health. Blast damage can hurt either player, and wind stays the same for both turns in a round.
 
 **[Play Skygun](https://beancounting.github.io/Skygun/)** — open the link in your browser; no download or installation required.
 
-Terrain destruction, computer play, and sound are later milestones. See [the approved plan](PLAN.md). The first playable build is live on GitHub Pages. A complete match/rematch passed on the public site in Chromium with a tablet touch profile; actual Safari/iPad verification remains outstanding.
+The live link currently serves the previously approved wind-up build; the crater update awaits publication approval. Computer play, additional maps, character refinement and sound remain later work. See [the approved plan](PLAN.md). Actual Safari/iPad verification remains outstanding.
 
 ## Downloading and opening the game
 
@@ -56,6 +56,7 @@ npm run preview     # Locally serve the production build
 - Use the **angle** and **power** sliders or their minus/plus buttons, then press **Fire shot**.
 - Focus the battlefield for arrow shortcuts: left/right change angle, up/down change power, and Space fires. Sliders also support their standard keyboard controls.
 - Share the device when the other player's turn begins. Each player keeps their own aim settings. A small cross marks their previous impact.
+- Explosions change the ground. Wait for robots to settle, then adjust your next shot to account for their new height. There is no movement or falling damage.
 - The **?** button explains the rules. **Pause** and backgrounding stop the match until you resume.
 - Rotation/resizing preserves the match. Reloading or browser tab eviction does not.
 

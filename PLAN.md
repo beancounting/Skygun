@@ -47,7 +47,15 @@ Use explicit aiming, flight, impact, settling (when needed), handoff, and game-o
 | 4. Feel/device polish | Cohesive placeholder art, trail/impact/damage feedback, audio/mute, help and rematch polish. Clear ownership beyond colour; working resize/background/resume; comfortable real-iPad controls. | Safari/touch behaviour: browser tests, actual-device checklist, complete human playtests. |
 | 5. Release preparation | Production build suitable for GitHub Pages; clean checks, assets work under /Skygun/, direct load/refresh works, publishing documented. | Hosting paths: test production output under repository prefix. Publication remains separately approved. |
 
-Milestone 1 is the only implementation currently authorised. Save this plan, implement it on `feat/local-duel`, run available checks and present the diff/results for review. Terrain destruction, AI, publication, visibility changes and merging are excluded from that task.
+Milestone 1 and the subsequent wind-up improvement have been implemented and published with approval. The user has now authorised milestone 2: make craters and settling work on the existing map, on `feat/destructible-terrain`. Validate and present it for review before publication or merging. Computer play, additional maps and character redesign remain outside this task.
+
+## Map backlog (after the current crater milestone)
+
+- [ ] Consider two more designed layouts: High Divide (central ridge) and The Basin (raised edges, low middle), alongside the current rolling hill.
+- [ ] Playtest terrain shapes for clear shots and fair starting positions before adding a small map selector.
+- [ ] Keep random terrain deferred until the designed maps establish what is fun.
+
+These are recorded ideas, not additional work approved for the current milestone.
 
 ## Character-refinement to-do (milestone 4)
 

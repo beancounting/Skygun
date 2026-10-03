@@ -113,6 +113,7 @@ function updateUI(): void {
     banner = `PASS TO ${PLAYER_NAMES[game.active === 0 ? 1 : 0].toUpperCase()}`;
     title = 'Over to you.'; hint = 'Pass the device to the other player.';
   }
+  if (game.phase === 'settling') { banner = 'WATCH YOUR FOOTING'; title = 'Finding solid ground.'; hint = 'The next turn starts once both robots settle.'; }
   if (game.phase === 'gameover') { banner = 'THAT’S A WRAP'; title = 'Good shooting.'; hint = 'Ready for another round?'; }
   el('turn-label').textContent = banner;
   el('action-title').textContent = title;
@@ -187,7 +188,7 @@ function pause(help = false): void {
   paused = true; clock.reset(); previousTime = 0;
   el('dialog-title').textContent = help ? 'A little aim. A little luck.' : 'Take a breather.';
   el('dialog-copy').innerHTML = help
-    ? '<p>Two robots. One hill. Take turns sharing this device.</p><ol><li><strong>Set your angle and power.</strong> Higher angles arc up; more power travels farther.</li><li><strong>Read the wind.</strong> The arrow shows where it pushes. Both players share the same wind each round.</li><li><strong>Fire, watch, adjust.</strong> Bring the other robot to zero health. Nearby blasts hurt too — even your own!</li></ol><p class="help-note">The dotted guide shows direction, not the whole shot. A small cross marks your previous impact. This first duel has fixed terrain.</p>'
+    ? '<p>Two robots. One hill. Take turns sharing this device.</p><ol><li><strong>Set your angle and power.</strong> Higher angles arc up; more power travels farther.</li><li><strong>Read the wind.</strong> The arrow shows where it pushes. Both players share the same wind each round.</li><li><strong>Reshape the hill.</strong> Explosions carve craters. Robots drop onto the remaining ground before the next turn. Falling is harmless unless all ground below you disappears.</li><li><strong>Fire, watch, adjust.</strong> Bring the other robot to zero health. Nearby blasts hurt too — even your own!</li></ol><p class="help-note">The dotted guide shows direction, not the whole shot. A small cross marks your previous impact. Rematch restores the hill.</p>'
     : '<p>Your match is right where you left it. Resume when both players are ready.</p>';
   if (!dialog.open) dialog.showModal();
   updateUI();

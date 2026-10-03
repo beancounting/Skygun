@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   advanceProjectile, blastDamage, createGame, findCollision, fire, FixedClock, groundAt,
-  replay, resolveImpact, resultFor, RULES, setAim, stepGame, type Game,
+  replay, resolveImpact, resultFor, RULES, setAim, stepGame, carveCrater, supportAt, type Game,
 } from '../src/game/simulation';
 
 function finishShot(game: Game): void {
@@ -210,15 +210,112 @@ describe('turn commands and completion', () => {
     expect(() => replay(42, [{ player: 1, angle: 45, power: 50 }])).toThrow('Invalid replay turn');
   });
 
-  it('leaves fixed terrain untouched and creates an independent fresh match', () => {
+  it('rematch restores independent terrain, health and turn state', () => {
     const game = createGame(); const terrain = [...game.terrain];
-    fire(game); finishShot(game);
-    expect(game.terrain).toEqual(terrain);
+    resolveImpact(game, { x: 600, y: game.terrain[600] }, 'ground'); finishShot(game);
+    expect(game.terrain[600]).toBeLessThan(terrain[600]);
     const fresh = createGame();
+    expect(fresh.terrain).toEqual(terrain);
+    expect(fresh.terrainRevision).toBe(0);
     expect(fresh.robots.map(r => r.health)).toEqual([100, 100]);
     expect(fresh.shots).toEqual([]); expect(fresh.lastShots).toEqual([null, null]);
     expect(fresh.phase).toBe('aiming'); expect(fresh.turn).toBe(1);
     fresh.robots[0].health = 1;
     expect(game.robots[0].health).not.toBe(1);
+  });
+});
+
+describe('destructible terrain and settling', () => {
+  it('cuts a lower circular arc without raising terrain or affecting distant samples', () => {
+    const terrain = Array(201).fill(100);
+    expect(carveCrater(terrain, { x: 100, y: 100 }, 50)).toBe(true);
+    expect(terrain[100]).toBe(50);
+    expect(terrain[130]).toBe(60);
+    expect(terrain[49]).toBe(100);
+    expect(terrain[151]).toBe(100);
+    expect(terrain.every(height => height >= 0 && height <= 100)).toBe(true);
+    const cut = [...terrain];
+    expect(carveCrater(terrain, { x: 100, y: 100 }, 50)).toBe(false);
+    expect(terrain).toEqual(cut);
+    carveCrater(terrain, { x: 115, y: 70 }, 50);
+    expect(terrain.every((height, x) => height <= cut[x])).toBe(true);
+  });
+
+  it('clamps craters to the map and zero floor, and ignores blasts above the ground', () => {
+    const terrain = Array(201).fill(20);
+    expect(carveCrater(terrain, { x: 100, y: 200 })).toBe(false);
+    carveCrater(terrain, { x: 0, y: 10 });
+    carveCrater(terrain, { x: 200, y: 10 });
+    expect(terrain).toHaveLength(201);
+    expect(terrain[0]).toBe(0); expect(terrain[200]).toBe(0);
+    expect(terrain[100]).toBe(20);
+    expect(terrain.every(Number.isFinite)).toBe(true);
+  });
+
+  it('uses the updated crater for subsequent collision and treats zero ground as void', () => {
+    const game = createGame(); game.terrain.fill(100);
+    carveCrater(game.terrain, { x: 600, y: 100 }, 50);
+    expect(findCollision(game, { x: 590, y: 80 }, { x: 610, y: 80 })).toBeNull();
+    const hit = findCollision(game, { x: 600, y: 80 }, { x: 600, y: 30 });
+    expect(hit?.kind).toBe('ground'); expect(hit!.y).toBeCloseTo(55, 1);
+    game.terrain.fill(0);
+    expect(findCollision(game, { x: 600, y: 10 }, { x: 600, y: -10 })).toBeNull();
+  });
+
+  it('preserves terrain for misses and updates the revision only on actual carving', () => {
+    const game = createGame(); const original = [...game.terrain];
+    resolveImpact(game, { x: 600, y: 100 }, 'miss');
+    expect(game.terrain).toEqual(original); expect(game.terrainRevision).toBe(0);
+    resolveImpact(game, { x: 600, y: 600 }, 'robot');
+    expect(game.terrainRevision).toBe(0);
+    resolveImpact(game, { x: 600, y: game.terrain[600] }, 'ground');
+    expect(game.terrainRevision).toBe(1);
+  });
+
+  it('supports the whole footprint, including fractional edges and narrow remaining ledges', () => {
+    const terrain = Array(201).fill(50); terrain[74] = 100;
+    expect(supportAt(terrain, 100)).toBe(100);
+    expect(supportAt(terrain, 100.5)).toBe(75);
+    expect(supportAt(terrain, -100)).toBe(0);
+    expect(supportAt(terrain, 0)).toBe(50);
+  });
+
+  it('animates settling with input locked and does not apply landing damage', () => {
+    const game = createGame(); const robot = game.robots[0];
+    const before = robot.y;
+    resolveImpact(game, { x: robot.x, y: groundAt(game.terrain, robot.x) }, 'ground');
+    const healthAfterBlast = robot.health;
+    expect(robot.y).toBe(before);
+    while (game.phase === 'impact') stepGame(game);
+    expect(game.phase).toBe('settling');
+    expect(fire(game)).toBe(false); expect(setAim(game, 0, { power: 90 })).toBe(false);
+    stepGame(game);
+    expect(robot.y).toBeLessThan(before);
+    expect(game.active).toBe(0);
+    finishShot(game);
+    expect(robot.y).toBeCloseTo(supportAt(game.terrain, robot.x) + RULES.robotGroundOffset);
+    expect(robot.health).toBe(healthAfterBlast);
+    expect(game.active).toBe(1);
+  });
+
+  it.each([false, true])('resolves lost support for both robots before deciding the result (both=%s)', both => {
+    const game = createGame();
+    for (const robot of both ? game.robots : [game.robots[0]]) {
+      for (let x = robot.x - 30; x <= robot.x + 30; x++) game.terrain[x] = 0;
+    }
+    resolveImpact(game, { x: 600, y: 600 }, 'miss');
+    finishShot(game);
+    expect(game.robots[0].health).toBe(0);
+    expect(game.result).toBe(both ? 'draw' : 1);
+    expect(game.phase).toBe('gameover');
+    expect(game.fallSpeeds).toEqual([0, 0]);
+  });
+
+  it('settling is bounded even for unusually large drops', () => {
+    const game = createGame(); game.robots[0].y = 100000;
+    game.phase = 'settling';
+    for (let i = 0; i < Math.ceil(RULES.maxSettling / RULES.step) + 2; i++) stepGame(game);
+    expect(game.phase).toBe('handoff');
+    expect(game.robots[0].y).toBe(supportAt(game.terrain, game.robots[0].x) + RULES.robotGroundOffset);
   });
 });

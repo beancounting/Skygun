@@ -71,3 +71,13 @@ On `feat/shot-windup`, pressing Fire now starts a 450 ms wind-up before the proj
 Validation: 25 simulation tests, 14 desktop/tablet Chromium interaction checks, TypeScript/build, and the standalone offline full-match/rematch check passed. Ready, pulled-back and release frames were visually inspected. The existing launch and damage values are unchanged, and complete seeded matches still reach the same results. A real iPad/Safari check is still required.
 
 Published with user approval as Pages commit `b0ef87a` from source `2b08ebd`. GitHub reports `built`. The public page serves the new `index-le_Pv0AM.js` asset; a tablet-profile Chromium run verified winding-up status and locked controls on each of five shots, victory and rematch, with no JavaScript or request failures. No source merge or visibility change was performed.
+
+## Milestone 2: destructible terrain (prepared, not yet live)
+
+Branch: `feat/destructible-terrain`, based on the wind-up branch. Ground/robot impacts carve a 72-unit-radius lower circular arc into the heightmap. Overlapping blasts only remove ground; no caves, overhangs or terrain growth are introduced. Collision and cached rendering paths use the same samples. Misses do not carve.
+
+After impact feedback, both upright carts settle against the highest remaining surface across their 52-unit track footprint. This intentionally lets a cart bridge a narrow hole or rest on an edge, without wheel/slope physics. Initial placement uses the same rule. Falling is animated, causes no damage, and is bounded at two seconds. Complete loss of support causes elimination; both landings/eliminations resolve before victory or draw. Input remains locked until handoff. Pausing/backgrounding freezes settling, and rematch restores a fresh heightmap.
+
+Validation: 34 simulation tests, 16 desktop/tablet Chromium checks, TypeScript/production build, and the offline standalone full-match/rematch check passed. Cases cover overlapping and edge craters, zero floor, collision through a crater, missing support, simultaneous falls/draws, bounded settling, pause during settling, and terrain restoration on rematch. Visually inspected the tablet battlefield after four hits: both craters and lowered robot positions are readable. The seeded full-match fixture now accounts for changed spawn/support heights and aim adjustments after destruction.
+
+No extra maps, movement, falling damage, character redesign, deployment or source merge is included. Additional map ideas are in PLAN.md. Real Safari/iPad testing and human balance playtests remain outstanding. Review this milestone before updating the live site.

@@ -12,6 +12,15 @@ Record user-visible changes, fixes, and important verification limits here with 
 
 ## Unreleased
 
+### 2026-10-03 — Craters and settling on the current map
+
+- Added overlapping circular craters to the heightmap, used by both collision and drawing. Zero-height terrain represents a hole through the bottom. Cached ground paths rebuild after carving.
+- Added upright robot settling against the full track footprint, with bounded falls and locked controls until both robots finish. Landing causes no extra damage; losing all support eliminates a robot. Simultaneous eliminations draw.
+- Rematch restores the hill. Updated in-game help and turn feedback, and aligned initial cart placement with the same support rules used after craters.
+- Verified 34 simulation tests, 16 desktop/tablet Chromium browser checks, TypeScript/production build and a complete offline downloadable match/rematch. Visually inspected the battlefield after repeated craters.
+- Recorded additional-map ideas in the backlog; did not implement a map selector, random terrain or character redesign.
+- Prepared on `feat/destructible-terrain` for review; the live game is unchanged pending publication approval. Actual Safari/iPad checks remain outstanding.
+
 ### 2026-10-03 — Character refinement backlog
 
 - Added character/weapon readability tasks to milestone 4, including clarifying the lever's connection to the barrel so it does not resemble another antenna. Deferred the artwork changes; gameplay and the live site are unchanged.
