@@ -1,6 +1,13 @@
 # Changelog
 
-Record user-visible changes, fixes, and important verification limits here with every implementation or fix. Dates use Australia/Brisbane time. Unreleased entries are not claims of publication.
+Record user-visible changes, fixes, and important verification limits here with every implementation or fix. Dates use Australia/Brisbane time. Historical preparation notes below describe status at the time; confirmed releases are recorded separately.
+
+## Published — 2026-10-03
+
+- The first playable local duel is live at https://beancounting.github.io/Skygun/ after the user enabled Pages. GitHub reports `built`, serving `gh-pages` from `/` with HTTPS enforced.
+- Verified the public HTML/CSS/JS returned HTTP 200 and completed a five-shot match plus rematch on the live site in Chromium with a tablet touch profile. No JavaScript errors or failed requests occurred.
+- Updated the README with the verified play link. No download or installation is required to use the hosted game.
+- Source `main` and repository visibility remain unchanged. Actual Mac Safari and iPad verification remains outstanding; touch emulation is not device certification.
 
 ## Unreleased
 

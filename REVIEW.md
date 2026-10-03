@@ -1,6 +1,6 @@
 # Milestone 1 review
 
-Branch: `feat/local-duel`. Scope: one complete local two-player match on fixed terrain. No merge or publication has been performed.
+Branch: `feat/local-duel`. Scope: one complete local two-player match on fixed terrain. Source remains unmerged. The first playable build was subsequently published with user approval; see the live verification below.
 
 ## What to review
 
@@ -55,3 +55,11 @@ This review covered launch/distribution, controls, pause/resume, physics and tes
 The user explicitly approved publishing the first playable web version. The static release passed 24 simulation tests and the TypeScript/production build, then was uploaded to `gh-pages` as `ca93fb2`. Source `main` and repository visibility were not changed. There is no source merge.
 
 The GitHub API's HTTPS CONNECT request returned proxy 403, blocking automatic Pages configuration. API/Pages hostname requirements were saved additively in the environment draft, but this does not apply live network settings. The remaining action is repository Settings → Pages → Deploy from a branch → gh-pages → / (root) → Save. GitHub eligibility has not been established through the blocked API; if Pages is unavailable, do not change visibility without approval. Verify the URL supplied by GitHub before calling the site live.
+
+## Live verification completed (2026-10-03)
+
+The user enabled Pages. The earlier network restriction no longer blocks the required hosts: the Pages API now reports `built`, `https_enforced: true`, and source `gh-pages` / `/`. The confirmed public URL is https://beancounting.github.io/Skygun/.
+
+The public page and both generated assets returned HTTP 200. An automated Chromium run using a tablet touch profile played the live five-shot match through the controls, reached “Moss takes the hill!”, and successfully rematched. No JavaScript errors or failed requests were observed. The test fixed the random seed in its browser context for reproducibility; production code and the deployed files were not altered by the test.
+
+Actual Mac Safari and iPad checks remain open. No source merge or visibility change was performed.
