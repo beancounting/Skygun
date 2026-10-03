@@ -49,6 +49,14 @@ Use explicit aiming, flight, impact, settling (when needed), handoff, and game-o
 
 Milestone 1 is the only implementation currently authorised. Save this plan, implement it on `feat/local-duel`, run available checks and present the diff/results for review. Terrain destruction, AI, publication, visibility changes and merging are excluded from that task.
 
+## Character-refinement to-do (milestone 4)
+
+- [ ] Refine the existing robot silhouettes and expressions while keeping them readable at normal gameplay size.
+- [ ] Make the firing lever visibly part of the weapon rather than a second antenna. Explore a thicker handle connected to the barrel and a small spring that compresses during wind-up.
+- [ ] Check that aiming, pulling back and release are understandable on both robots, including at iPad size and with reduced motion enabled.
+
+This is deferred visual polish, not an immediate redesign or a request for additional characters. Keep the current playable art until this milestone is approved.
+
 ## Risks and testing
 
 Use moderate wind, readable trails and impact markers to make misses understandable. Start with broad hills and modest future craters to avoid trapping players. Test high-speed collision, self-damage, explosion boundaries, simultaneous defeats, shot exits/timeouts, duplicate fire, handoffs and rematch resets. Later test crater boundaries and settling. Use a development seed, snapshot and shot log to reproduce failures; not a user-facing editor.

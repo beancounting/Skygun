@@ -12,6 +12,10 @@ Record user-visible changes, fixes, and important verification limits here with 
 
 ## Unreleased
 
+### 2026-10-03 — Character refinement backlog
+
+- Added character/weapon readability tasks to milestone 4, including clarifying the lever's connection to the barrel so it does not resemble another antenna. Deferred the artwork changes; gameplay and the live site are unchanged.
+
 ### 2026-10-03 — Shot wind-up animation
 
 - Added a 450 ms wind-up: the robot's cocking lever pulls back, the barrel retracts, then both spring forward as the projectile launches. Mirrored for both players.
