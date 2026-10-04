@@ -36,9 +36,16 @@ try {
   assert.equal(await page.locator('#hp-0').getAttribute('value'), '100');
   assert.equal(await page.locator('#hp-1').getAttribute('value'), '100');
   assert.equal(await page.locator('#turn-number').textContent(), 'TURN 01 / PLAYER 1');
+  await page.getByRole('button', { name: 'Set up match' }).click();
+  await page.getByRole('radio', { name: /Solo/ }).check();
+  await page.getByRole('button', { name: 'Start new match' }).click();
+  await page.getByRole('button', { name: /Fire shot/ }).click();
+  await page.clock.runFor(22000);
+  assert.equal(await page.locator('#turn-number').textContent(), 'TURN 03 / PLAYER 1');
+  assert.equal(await page.locator('#mode-label').textContent(), 'SOLO · FRIENDLY');
   assert.deepEqual(errors, []);
   assert.deepEqual(requests, [], 'Offline download must not fetch any assets');
-  console.log('PASS: standalone document loads offline, completes a five-shot match and rematch, has no runtime errors or external requests, and omits debug helpers.');
+  console.log('PASS: standalone document loads offline, completes a five-shot match/rematch and a solo exchange, has no runtime errors or external requests, and omits debug helpers.');
 } finally {
   await browser.close();
 }

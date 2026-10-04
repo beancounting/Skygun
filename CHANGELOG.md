@@ -2,6 +2,18 @@
 
 Record user-visible changes, fixes, and important verification limits here with every implementation or fix. Dates use Australia/Brisbane time. Historical preparation notes below describe status at the time; confirmed releases are recorded separately.
 
+## Unreleased
+
+### 2026-10-05 — Solo play with a Friendly computer opponent
+
+- Added Solo · Friendly alongside Two players in the new Play setup menu, on all three maps. You control Moss; Ember automatically chooses and fires its shots. The current two-player mode remains the initial default.
+- The opponent searches copied game states using the same wind, collision, crater and settling rules. It scores enemy damage, penalises self-hits and adds modest seeded aim error. Search work is split across frames, with a short thinking pause before firing.
+- Human aiming and firing are locked on computer turns. Pause/backgrounding and the setup menu freeze thinking; new matches discard pending plans. Rematches retain the opponent and map. Updated status text, help and mode labels.
+- Verified 67 simulation tests (including nine complete computer matches across all maps and strong-wind opening shots), 24 desktop/tablet Chromium browser checks and TypeScript/production build. Visually inspected the setup menu at tablet/phone sizes and the thinking state.
+- The standalone offline build also passed a full local match/rematch and a human/computer exchange, with no external requests or runtime errors.
+- Local Chromium measurement for one opening search: 73 frames, 82.6 ms total search work, slowest batch 7.7 ms. The 3 ms batch deadline is a soft target, checked between bounded simulation chunks; this is not an iPad performance claim.
+- Prepared on `feat/solo-play` for review. The live game is unchanged. Human difficulty tuning and actual Mac Safari/iPad tests remain outstanding.
+
 ## Published — 2026-10-04
 
 - Published the crater-and-three-map update with explicit user approval: source `1493bca`, Pages build `a78b29d`. GitHub reports the build complete; the live page serves `index-DU4EMwHG.js`.

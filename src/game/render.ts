@@ -117,7 +117,7 @@ function drawRobot(ctx: CanvasRenderingContext2D, game: Game, player: PlayerId, 
   ctx.restore();
 }
 
-export function render(ctx: CanvasRenderingContext2D, width: number, height: number, game: Game, reducedMotion = false): void {
+export function render(ctx: CanvasRenderingContext2D, width: number, height: number, game: Game, reducedMotion = false, solo = false): void {
   const scale = Math.min(width / RULES.width, height / RULES.height);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = '#e6eddb'; ctx.fillRect(0, 0, width, height);
@@ -214,6 +214,6 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
   const map = MAPS.find(map => map.id === game.mapId)!;
   ctx.fillText(`${map.number}  /  ${map.name.toUpperCase()}`, 28, 640);
   ctx.fillStyle = '#a7bd96'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText('LOCAL TWO-PLAYER  ·  DESTRUCTIBLE TERRAIN', 28, 660);
+  ctx.fillText(`${solo ? 'SOLO / FRIENDLY' : 'LOCAL TWO-PLAYER'}  ·  DESTRUCTIBLE TERRAIN`, 28, 660);
   ctx.restore();
 }

@@ -1,12 +1,12 @@
 # Skygun
 
-Little robots. Big shots. A small, original browser artillery game for two people sharing a device.
+Little robots. Big shots. A small, original browser artillery game for solo play or two people sharing a device.
 
 **Now live:** three selectable maps, explosions that carve craters, and robots that settle onto remaining ground before the next turn. Landing does not cause damage; losing all support down to the bottom eliminates a robot. Rematch restores the original hill. Aim, read the wind, fire, and bring the other robot to zero health. Blast damage can hurt either player, and wind stays the same for both turns in a round.
 
 **[Play Skygun](https://beancounting.github.io/Skygun/)** — open the link in your browser; no download or installation required.
 
-The live link includes the crater and map updates. Use **Maps** to choose Sunpatch Ridge, High Divide or The Basin. Computer play, character refinement and sound remain later work. See [the approved plan](PLAN.md). Actual Safari/iPad verification remains outstanding.
+The live link includes the crater and map updates. Use **Maps** to choose Sunpatch Ridge, High Divide or The Basin. This branch also prepares **Solo · Friendly**: use **Play** to choose solo or two players and a map. You play Moss; the computer controls Ember, reads wind and terrain, and fires automatically. Solo is not published yet. Character refinement and sound remain later work. See [the approved plan](PLAN.md). Actual Safari/iPad verification remains outstanding.
 
 ## Downloading and opening the game
 
@@ -57,7 +57,7 @@ npm run preview     # Locally serve the production build
 - Focus the battlefield for arrow shortcuts: left/right change angle, up/down change power, and Space fires. Sliders also support their standard keyboard controls.
 - Share the device when the other player's turn begins. Each player keeps their own aim settings. A small cross marks their previous impact.
 - Explosions change the ground. Wait for robots to settle, then adjust your next shot to account for their new height. There is no movement or falling damage.
-- **Maps** offers Sunpatch Ridge, High Divide and The Basin, with terrain previews. Opening the picker pauses play; Cancel preserves the match. Start new match resets health and terrain. Play again keeps your chosen map.
+- In this branch, **Play** offers Solo · Friendly or Two players, plus Sunpatch Ridge, High Divide and The Basin with terrain previews. The live release still calls this button **Maps**. Opening the picker pauses play; Cancel preserves the match. Start new match resets health and terrain. Play again keeps your chosen map and opponent.
 - The **?** button explains the rules. **Pause** and backgrounding stop the match until you resume.
 - Rotation/resizing preserves the match. Reloading or browser tab eviction does not.
 

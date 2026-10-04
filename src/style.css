@@ -180,3 +180,6 @@ dialog button { margin-top: 10px; width: 100%; }
 .map-option small { margin-top: 5px; font-size: 12px; line-height: 1.45; }
 .map-cancel { min-height: 44px; border: none; background: transparent; color: #203f37; font: inherit; cursor: pointer; }
 @media (max-width: 480px) { #map-dialog { padding: 20px; } .map-option { gap: 8px; } .map-option svg { width: 54px; } }
+
+.opponent-options { display: grid; gap: 10px; }
+#map-dialog h3 { margin: 18px 0 10px; font-size: 14px; }
