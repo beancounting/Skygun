@@ -60,8 +60,8 @@ Map implementation follows the user’s request to continue iterating. The user 
 
 ## Feedback and difficulty follow-up (2026-10-05)
 
-- [x] Prepare clearer damage badges, a labelled last-impact marker and an outward impact burst on `feat/shot-feedback`, following user approval to improve shot feedback.
-- [ ] Human playtest feedback readability and timing on iPad; publish this update only after explicit approval.
+- [x] Publish clearer damage badges, a labelled last-impact marker and an outward impact burst with explicit user approval (2026-10-05, source `bb00fd3`, Pages build `c1ac1d9`).
+- [ ] Human playtest feedback readability and timing on iPad.
 - [ ] Add a Relaxed opponent with more aiming error; consider naming the current difficulty Standard. Preserve the current opponent's behaviour until that change is approved.
 - [ ] Add sound with a mute button after visual feedback.
 

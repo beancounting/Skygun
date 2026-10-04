@@ -55,7 +55,7 @@ npm run preview     # Locally serve the production build
 
 - Use the **angle** and **power** sliders or their minus/plus buttons, then press **Fire shot**.
 - Focus the battlefield for arrow shortcuts: left/right change angle, up/down change power, and Space fires. Sliders also support their standard keyboard controls.
-- Share the device when the other player's turn begins. Each player keeps their own aim settings. The current live version uses a small cross for the previous impact. This branch prepares a clearer LAST SHOT label pointing to that exact location, larger damage badges and an impact burst. These feedback changes are not published yet.
+- Share the device when the other player's turn begins. Each player keeps their own aim settings. A LAST SHOT label points to your previous impact, not a predicted landing. Contrasting HP badges show damage, and a brief burst marks impacts. Reduced-motion mode keeps the feedback still.
 - Explosions change the ground. Wait for robots to settle, then adjust your next shot to account for their new height. There is no movement or falling damage.
 - **Play** offers Solo · Friendly or Two players, plus Sunpatch Ridge, High Divide and The Basin with terrain previews. Opening the picker pauses play; Cancel preserves the match. Start new match resets health and terrain. Play again keeps your chosen map and opponent.
 - The **?** button explains the rules. **Pause** and backgrounding stop the match until you resume.

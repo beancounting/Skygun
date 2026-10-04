@@ -2,7 +2,15 @@
 
 Record user-visible changes, fixes, and important verification limits here with every implementation or fix. Dates use Australia/Brisbane time. Historical preparation notes below describe status at the time; confirmed releases are recorded separately.
 
-## Unreleased
+## Published — 2026-10-05 — Shot feedback
+
+- Published the shot-feedback update with explicit user approval: source `bb00fd3`, Pages build `c1ac1d9`. GitHub reports `built`; the public page serves `index-DxJZ3KxA.js`.
+- Verified the rendered damage badge and LAST SHOT label during a full live match/rematch in tablet-profile Chromium. Reduced-motion impact frames 200 ms apart were pixel-identical. No runtime errors or failed HTTP requests occurred; production debug helpers are absent.
+- Updated README and PLAN for the live release. Source branches remain unmerged, repository visibility is unchanged, and actual iPad/Safari readability checks remain open.
+
+## Shot feedback preparation history
+
+The entry below records pre-release work, subsequently published with approval above.
 
 ### 2026-10-05 — Clearer shot feedback
 

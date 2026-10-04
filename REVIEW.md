@@ -134,3 +134,8 @@ Inspected tablet (1024×768) impact/marker and phone (390×844) marker screensho
 Browser regression checks: 23 desktop/tablet Chromium cases passed in the initial run; the final tablet solo case was reset to LOCAL DUEL by a development hot reload during the small-screen rendering edit. It passed when rerun against the finished code (35.9 s). No test or timeout changes were needed. Final TypeScript/production build passed.
 
 The final standalone offline build completed a five-shot local match/rematch and solo exchange, without runtime errors or external requests and with development helpers absent.
+
+
+## Shot feedback release verified (2026-10-05)
+
+The user explicitly approved publication. Deployed source `bb00fd3` as Pages build `c1ac1d9`; GitHub reports `built` and the live page serves `index-DxJZ3KxA.js`. Live tablet-profile Chromium verified the rendered −40 HP badge, matching damage detail, LAST SHOT label, pixel-identical reduced-motion impact frames 200 ms apart, and a full five-shot match/rematch. Inspected the live impact screenshot. No runtime or HTTP errors occurred, and production debug helpers are absent. Source branches remain unmerged; repository visibility is unchanged. Actual iPad/Safari readability checks remain open.
