@@ -119,6 +119,9 @@ function drawRobot(ctx: CanvasRenderingContext2D, game: Game, player: PlayerId, 
 
 export function render(ctx: CanvasRenderingContext2D, width: number, height: number, game: Game, reducedMotion = false, solo = false): void {
   const scale = Math.min(width / RULES.width, height / RULES.height);
+  // Keep feedback legible when the world shrinks on a phone, independent of DPR.
+  const displayScale = Math.min((ctx.canvas.clientWidth || width) / RULES.width, (ctx.canvas.clientHeight || height) / RULES.height);
+  const feedbackScale = Math.max(1, Math.min(2.5, 0.75 / displayScale));
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = '#e6eddb'; ctx.fillRect(0, 0, width, height);
   ctx.translate((width - RULES.width * scale) / 2, (height - RULES.height * scale) / 2);
@@ -170,9 +173,23 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
 
   const previous = game.lastShots[game.active];
   if (previous && previous.kind !== 'miss' && game.phase === 'aiming') {
-    ctx.strokeStyle = '#fff1bf'; ctx.lineWidth = 2;
     const x = previous.x; const y = screenY(previous.y);
-    ctx.beginPath(); ctx.moveTo(x - 5, y - 5); ctx.lineTo(x + 5, y + 5); ctx.moveTo(x + 5, y - 5); ctx.lineTo(x - 5, y + 5); ctx.stroke();
+    // The cross stays at the actual impact, even when a crater lowers the surface.
+    const margin = 78 * feedbackScale;
+    const labelX = Math.max(margin, Math.min(RULES.width - margin, x));
+    const labelY = Math.max(24 * feedbackScale, y - 64 * feedbackScale);
+    ctx.save();
+    ctx.strokeStyle = INK; ctx.lineWidth = 6; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x - 9, y - 9); ctx.lineTo(x + 9, y + 9); ctx.moveTo(x + 9, y - 9); ctx.lineTo(x - 9, y + 9); ctx.stroke();
+    ctx.strokeStyle = '#fff5cf'; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(labelX, labelY + 16 * feedbackScale); ctx.lineTo(x, y - 13); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.translate(labelX, labelY); ctx.scale(feedbackScale, feedbackScale);
+    roundRect(ctx, -72, -16, 144, 32, 8, INK);
+    ctx.fillStyle = '#fff5cf'; ctx.font = 'bold 18px ui-monospace, monospace'; ctx.textAlign = 'center';
+    ctx.fillText('LAST SHOT', 0, 6);
+    ctx.restore();
   }
   drawRobot(ctx, game, 0, reducedMotion); drawRobot(ctx, game, 1, reducedMotion);
 
@@ -198,16 +215,37 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
   if (game.impact && game.phase === 'impact') {
     const impact = game.impact; const progress = game.phaseTime / RULES.impactDuration;
     if (impact.kind !== 'miss') {
-      ctx.globalAlpha = 1 - progress;
-      const radius = reducedMotion ? 28 : 15 + Math.sin(progress * Math.PI / 2) * 49;
-      ctx.fillStyle = '#ffe4a0'; ctx.strokeStyle = '#fff6da'; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.arc(impact.x, screenY(impact.y), radius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.globalAlpha = 1;
+      const x = impact.x, y = screenY(impact.y);
+      ctx.save();
+      // A single outward burst, without flashing or screen shake.
+      ctx.globalAlpha = reducedMotion ? 0.85 : Math.max(0, 1 - progress);
+      const radius = reducedMotion ? 30 : 18 + Math.sin(progress * Math.PI / 2) * 48;
+      ctx.fillStyle = '#ffe4a0'; ctx.strokeStyle = INK; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(x, y, radius * 0.55, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#fff6da';
+      ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.stroke();
+      if (!reducedMotion) {
+        ctx.strokeStyle = '#f6c35e'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+        for (let ray = 0; ray < 8; ray++) {
+          const angle = ray * Math.PI / 4 + 0.2;
+          const near = radius + 7, far = near + 12 * (1 - progress);
+          ctx.beginPath(); ctx.moveTo(x + Math.cos(angle) * near, y + Math.sin(angle) * near);
+          ctx.lineTo(x + Math.cos(angle) * far, y + Math.sin(angle) * far); ctx.stroke();
+        }
+      }
+      ctx.restore();
     }
     impact.damage.forEach((damage, player) => {
       if (!damage) return;
-      ctx.font = 'bold 25px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = INK;
-      ctx.fillText(`−${damage}`, game.robots[player].x, screenY(game.robots[player].y) - 74 - (reducedMotion ? 0 : progress * 20));
+      const x = game.robots[player].x;
+      const y = screenY(game.robots[player].y) - 88 * feedbackScale - (reducedMotion ? 0 : progress * 24);
+      ctx.save();
+      ctx.translate(x, y); ctx.scale(feedbackScale, feedbackScale);
+      ctx.lineWidth = 2;
+      roundRect(ctx, -58, -22, 116, 39, 12, INK, '#fff5cf');
+      ctx.font = 'bold 27px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff5cf';
+      ctx.fillText(`−${damage} HP`, 0, 6);
+      ctx.restore();
     });
   }
   ctx.textAlign = 'left'; ctx.fillStyle = '#dce4b9'; ctx.font = 'bold 12px ui-monospace, monospace';

@@ -58,6 +58,13 @@ Milestone 1 and the subsequent wind-up improvement have been implemented and pub
 
 Map implementation follows the user’s request to continue iterating. The user explicitly approved publishing the combined crater/map update after the initial automatic approval rejection. Published source `1493bca` as Pages build `a78b29d` on 2026-10-04. Source review/merging remains separate.
 
+## Feedback and difficulty follow-up (2026-10-05)
+
+- [x] Publish clearer damage badges, a labelled last-impact marker and an outward impact burst with explicit user approval (2026-10-05, source `bb00fd3`, Pages build `c1ac1d9`).
+- [ ] Human playtest feedback readability and timing on iPad.
+- [ ] Add a Relaxed opponent with more aiming error; consider naming the current difficulty Standard. Preserve the current opponent's behaviour until that change is approved.
+- [ ] Add sound with a mute button after visual feedback.
+
 ## Character-refinement to-do (milestone 4)
 
 - [ ] Refine the existing robot silhouettes and expressions while keeping them readable at normal gameplay size.

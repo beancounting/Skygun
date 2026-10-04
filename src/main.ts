@@ -137,7 +137,7 @@ function updateUI(): void {
     const total = game.impact!.damage[0] + game.impact!.damage[1];
     banner = total ? `${total} DAMAGE` : 'A LITTLE CLOSER NEXT TIME';
     title = total ? 'That left a mark.' : 'Finding your range.';
-    hint = game.impact?.kind === 'miss' ? 'Out of bounds. Try a little less power.' : total ? 'Every shot tells a story.' : 'Watch where it landed. Adjust next turn.';
+    hint = game.impact?.kind === 'miss' ? 'Out of bounds. Try a little less power.' : total ? game.impact!.damage.map((damage, player) => damage ? `${PLAYER_NAMES[player]} −${damage} HP` : '').filter(Boolean).join(' · ') : 'No damage. Use the last-shot marker to adjust.';
   }
   if (game.phase === 'handoff') {
     banner = `PASS TO ${PLAYER_NAMES[game.active === 0 ? 1 : 0].toUpperCase()}`;
@@ -220,7 +220,7 @@ function pause(help = false): void {
   if (mapDialog.open) { updateUI(); return; }
   el('dialog-title').textContent = help ? 'A little aim. A little luck.' : 'Take a breather.';
   el('dialog-copy').innerHTML = help
-    ? '<p>In Solo, you are Moss and the computer is Ember. In Two players, take turns sharing this device. Choose your opponent and map with Play.</p><ol><li><strong>Set your angle and power.</strong> Higher angles arc up; more power travels farther.</li><li><strong>Read the wind.</strong> The arrow shows where it pushes. Both players share the same wind each round.</li><li><strong>Reshape the hill.</strong> Explosions carve craters. Robots drop onto the remaining ground before the next turn. Falling is harmless unless all ground below you disappears.</li><li><strong>Fire, watch, adjust.</strong> Bring the other robot to zero health. Nearby blasts hurt too — even your own!</li></ol><p class="help-note">The dotted guide shows direction, not the whole shot. A small cross marks your previous impact. Rematch restores the hill.</p>'
+    ? '<p>In Solo, you are Moss and the computer is Ember. In Two players, take turns sharing this device. Choose your opponent and map with Play.</p><ol><li><strong>Set your angle and power.</strong> Higher angles arc up; more power travels farther.</li><li><strong>Read the wind.</strong> The arrow shows where it pushes. Both players share the same wind each round.</li><li><strong>Reshape the hill.</strong> Explosions carve craters. Robots drop onto the remaining ground before the next turn. Falling is harmless unless all ground below you disappears.</li><li><strong>Fire, watch, adjust.</strong> Bring the other robot to zero health. Nearby blasts hurt too — even your own!</li></ol><p class="help-note">The dotted guide shows direction, not the whole shot. The LAST SHOT label points to your previous impact; it is not a prediction. Damage badges show health lost. Rematch restores the hill.</p>'
     : '<p>Your match is right where you left it. Resume when both players are ready.</p>';
   if (!dialog.open) dialog.showModal();
   updateUI();
