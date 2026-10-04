@@ -1,3 +1,4 @@
+import { MAPS } from './maps';
 import { barrelDirection, groundAt, RULES, type Game, type PlayerId, type Point } from './simulation';
 
 const INK = '#203f37';
@@ -210,7 +211,8 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
     });
   }
   ctx.textAlign = 'left'; ctx.fillStyle = '#dce4b9'; ctx.font = 'bold 12px ui-monospace, monospace';
-  ctx.fillText('01  /  SUNPATCH RIDGE', 28, 640);
+  const map = MAPS.find(map => map.id === game.mapId)!;
+  ctx.fillText(`${map.number}  /  ${map.name.toUpperCase()}`, 28, 640);
   ctx.fillStyle = '#a7bd96'; ctx.font = '11px ui-monospace, monospace';
   ctx.fillText('LOCAL TWO-PLAYER  ·  DESTRUCTIBLE TERRAIN', 28, 660);
   ctx.restore();

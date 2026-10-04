@@ -1,4 +1,5 @@
 import './style.css';
+import { MAPS, terrainHeight, type MapId } from './game/maps';
 import { createGame, fire, FixedClock, replay, RULES, setAim, type Game, type ShotCommand } from './game/simulation';
 import { PLAYER_NAMES, render } from './game/render';
 
@@ -8,7 +9,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <header class="masthead">
       <span class="brand" aria-label="Skygun">${target}<span>sky<span class="brand-light">gun</span><span class="brand-dot">✳︎</span></span></span>
       <span class="tagline">LITTLE ROBOTS. BIG SHOTS.</span>
-      <div class="header-actions"><span class="mode-label"><span></span> LOCAL DUEL</span><button id="help" class="quiet-button" aria-label="How to play">?</button><button id="pause" class="quiet-button" aria-label="Pause game"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button></div>
+      <div class="header-actions"><span class="mode-label"><span></span> LOCAL DUEL</span><button id="maps" class="quiet-button maps-button" aria-label="Choose map">Maps</button><button id="help" class="quiet-button" aria-label="How to play">?</button><button id="pause" class="quiet-button" aria-label="Pause game"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button></div>
     </header>
 
     <section class="arena" aria-label="Local two-player match">
@@ -28,7 +29,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <canvas id="game" tabindex="0" aria-label="Battlefield. Focus here for arrow-key aiming and Space to fire." aria-describedby="keyboard-help"></canvas>
         <div class="turn-banner" aria-hidden="true"><span class="turn-dot"></span><span id="turn-label">MOSS, TAKE YOUR SHOT</span></div>
         <div id="result" class="result" hidden>
-          <div class="result-card"><span class="eyebrow">A LITTLE AIM. A LITTLE LUCK.</span><span class="trophy" aria-hidden="true">✳︎</span><h1 id="result-title"></h1><p id="result-detail"></p><button id="rematch" class="primary-button">Play again <span aria-hidden="true">↻</span></button><span class="result-footnote">Same hill. Fresh rivalry.</span></div>
+          <div class="result-card"><span class="eyebrow">A LITTLE AIM. A LITTLE LUCK.</span><span class="trophy" aria-hidden="true">✳︎</span><h1 id="result-title"></h1><p id="result-detail"></p><button id="rematch" class="primary-button">Play again <span aria-hidden="true">↻</span></button><span class="result-footnote">Same map. Fresh rivalry.</span></div>
         </div>
       </div>
 
@@ -46,6 +47,20 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <p class="portrait-note">A little more room? Try turning your device sideways.</p>
     <p id="announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
     <dialog id="pause-dialog" aria-labelledby="dialog-title"><form method="dialog"><span class="eyebrow">SKYGUN / LOCAL DUEL</span><h2 id="dialog-title">Take a breather.</h2><div id="dialog-copy"></div><button id="resume" class="primary-button" type="submit">Back to the hill <span aria-hidden="true">→</span></button></form></dialog>
+    <dialog id="map-dialog" aria-labelledby="map-title">
+      <form method="dialog">
+        <span class="eyebrow">THREE PLACES TO SETTLE IT</span><h2 id="map-title">Pick your battlefield.</h2>
+        <p>Starting a new match resets both robots and restores the ground. Cancel to keep playing.</p>
+        <div class="map-options" role="radiogroup" aria-label="Battlefield map">
+          ${MAPS.map(map => {
+            const points = Array.from({ length: 61 }, (_, i) => `${i * 2},${67.5 - terrainHeight(map.id, i * 20) / 10}`).join(' ');
+            return `<label class="map-option"><input type="radio" name="map" value="${map.id}"/><svg viewBox="0 0 120 68" aria-hidden="true"><polygon points="0,68 ${points} 120,68"/></svg><span><strong>${map.name}</strong><small>${map.description}</small></span></label>`;
+          }).join('')}
+        </div>
+        <button id="start-map" class="primary-button" type="button">Start new match <span aria-hidden="true">→</span></button>
+        <button class="map-cancel" type="submit" autofocus>Cancel — keep this match</button>
+      </form>
+    </dialog>
   </main>`;
 
 const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -58,6 +73,7 @@ const power = el<HTMLInputElement>('power');
 const fireButton = el<HTMLButtonElement>('fire');
 const dialog = el<HTMLDialogElement>('pause-dialog');
 const result = el<HTMLDivElement>('result');
+const mapDialog = el<HTMLDialogElement>('map-dialog');
 const clock = new FixedClock();
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let game = createGame(crypto.getRandomValues(new Uint32Array(1))[0]);
@@ -186,6 +202,7 @@ canvas.addEventListener('keydown', event => {
 
 function pause(help = false): void {
   paused = true; clock.reset(); previousTime = 0;
+  if (mapDialog.open) { updateUI(); return; }
   el('dialog-title').textContent = help ? 'A little aim. A little luck.' : 'Take a breather.';
   el('dialog-copy').innerHTML = help
     ? '<p>Two robots. One hill. Take turns sharing this device.</p><ol><li><strong>Set your angle and power.</strong> Higher angles arc up; more power travels farther.</li><li><strong>Read the wind.</strong> The arrow shows where it pushes. Both players share the same wind each round.</li><li><strong>Reshape the hill.</strong> Explosions carve craters. Robots drop onto the remaining ground before the next turn. Falling is harmless unless all ground below you disappears.</li><li><strong>Fire, watch, adjust.</strong> Bring the other robot to zero health. Nearby blasts hurt too — even your own!</li></ol><p class="help-note">The dotted guide shows direction, not the whole shot. A small cross marks your previous impact. Rematch restores the hill.</p>'
@@ -194,23 +211,40 @@ function pause(help = false): void {
   updateUI();
 }
 function resume(): void {
-  if (document.hidden) return;
+  if (document.hidden || mapDialog.open || dialog.open) return;
   paused = false; clock.reset(); previousTime = 0;
   updateUI(); canvas.focus({ preventScroll: true });
 }
 el('help').addEventListener('click', () => pause(true));
 el('pause').addEventListener('click', () => pause());
 dialog.addEventListener('close', resume);
+mapDialog.addEventListener('close', resume);
+mapDialog.addEventListener('cancel', event => { if (document.hidden) event.preventDefault(); });
+el('maps').addEventListener('click', () => {
+  paused = true; clock.reset(); previousTime = 0;
+  mapDialog.querySelectorAll<HTMLInputElement>('input[name=map]').forEach(input => { input.checked = input.value === game.mapId; });
+  mapDialog.showModal();
+  updateUI();
+});
+el('start-map').addEventListener('click', () => {
+  const selected = mapDialog.querySelector<HTMLInputElement>('input[name=map]:checked')!;
+  startMatch(selected.value as MapId);
+  mapDialog.close();
+});
 dialog.addEventListener('cancel', event => {
   if (document.hidden) event.preventDefault();
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
 window.addEventListener('pagehide', () => pause());
 window.addEventListener('pageshow', () => { if (paused && !dialog.open) pause(); });
+function startMatch(mapId: MapId): void {
+  game = createGame(crypto.getRandomValues(new Uint32Array(1))[0], mapId);
+  lastUiKey = ''; lastAnnouncement = ''; clock.reset(); previousTime = 0;
+  updateUI();
+}
 el('rematch').addEventListener('click', () => {
-  game = createGame(crypto.getRandomValues(new Uint32Array(1))[0]);
-  lastUiKey = ''; clock.reset(); previousTime = 0;
-  updateUI(); canvas.focus({ preventScroll: true });
+  startMatch(game.mapId);
+  canvas.focus({ preventScroll: true });
 });
 
 function resize(): void {
@@ -237,17 +271,17 @@ declare global {
   interface Window {
     skygun?: {
       snapshot: () => Game;
-      replayData: () => { seed: number; shots: ShotCommand[] };
-      loadReplay: (seed: number, shots: ShotCommand[]) => void;
+      replayData: () => { seed: number; shots: ShotCommand[]; mapId: MapId };
+      loadReplay: (seed: number, shots: ShotCommand[], mapId?: MapId) => void;
     };
   }
 }
 if (import.meta.env.DEV) {
   window.skygun = {
     snapshot: () => structuredClone(game),
-    replayData: () => ({ seed: game.seed, shots: structuredClone(game.shots) }),
-    loadReplay: (seed, shots) => {
-      const restored = replay(seed, shots);
+    replayData: () => ({ mapId: game.mapId, seed: game.seed, shots: structuredClone(game.shots) }),
+    loadReplay: (seed, shots, mapId) => {
+      const restored = replay(seed, shots, mapId);
       game = restored; lastUiKey = ''; clock.reset(); previousTime = 0;
       updateUI();
     },

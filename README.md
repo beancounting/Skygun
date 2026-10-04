@@ -2,11 +2,11 @@
 
 Little robots. Big shots. A small, original browser artillery game for two people sharing a device.
 
-**Milestone 2, prepared in this branch:** explosions carve craters into the existing hill, and robots settle onto remaining ground before the next turn. Landing does not cause damage; losing all support down to the bottom eliminates a robot. Rematch restores the original hill. Aim, read the wind, fire, and bring the other robot to zero health. Blast damage can hurt either player, and wind stays the same for both turns in a round.
+**Prepared in this branch:** three selectable maps, with explosions that carve craters, and robots settle onto remaining ground before the next turn. Landing does not cause damage; losing all support down to the bottom eliminates a robot. Rematch restores the original hill. Aim, read the wind, fire, and bring the other robot to zero health. Blast damage can hurt either player, and wind stays the same for both turns in a round.
 
 **[Play Skygun](https://beancounting.github.io/Skygun/)** — open the link in your browser; no download or installation required.
 
-The live link currently serves the previously approved wind-up build; the crater update awaits publication approval. Computer play, additional maps, character refinement and sound remain later work. See [the approved plan](PLAN.md). Actual Safari/iPad verification remains outstanding.
+The live link currently serves the previously approved wind-up build; the crater and map updates await publication approval. Computer play, character refinement and sound remain later work. See [the approved plan](PLAN.md). Actual Safari/iPad verification remains outstanding.
 
 ## Downloading and opening the game
 
@@ -57,6 +57,7 @@ npm run preview     # Locally serve the production build
 - Focus the battlefield for arrow shortcuts: left/right change angle, up/down change power, and Space fires. Sliders also support their standard keyboard controls.
 - Share the device when the other player's turn begins. Each player keeps their own aim settings. A small cross marks their previous impact.
 - Explosions change the ground. Wait for robots to settle, then adjust your next shot to account for their new height. There is no movement or falling damage.
+- **Maps** offers Sunpatch Ridge, High Divide and The Basin, with terrain previews. Opening the picker pauses play; Cancel preserves the match. Start new match resets health and terrain. Play again keeps your chosen map.
 - The **?** button explains the rules. **Pause** and backgrounding stop the match until you resume.
 - Rotation/resizing preserves the match. Reloading or browser tab eviction does not.
 

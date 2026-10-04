@@ -12,6 +12,15 @@ Record user-visible changes, fixes, and important verification limits here with 
 
 ## Unreleased
 
+### 2026-10-04 — Three selectable battlefields
+
+- Added High Divide (central ridge) and The Basin (raised banks) alongside the unchanged Sunpatch Ridge. Both new layouts have symmetric starting terrain; all three use the existing crater and settling simulation.
+- Added a Maps button and accessible picker with terrain previews. Opening it pauses play; Cancel preserves the current match. Starting a new match resets health, wind and terrain. Play again keeps the selected map, and the battlefield displays its name.
+- Included map identity in development replay data so different layouts reproduce correctly.
+- Verified 50 simulation tests, 20 desktop/tablet Chromium browser checks, TypeScript/production build and the standalone offline full-match/rematch check. Checked reachable damage from both players at both maximum wind directions. New-map browser checks use deterministic simulation replays to reach victory, then the real rematch controls. Inspected both new battlefields and tablet/phone picker screenshots.
+- Prepared on `feat/map-selection`, stacked on the crater branch. Neither update is live. Automatic approval review rejected the attempted live deployment because this specific release lacked explicit publication approval. No source merge or visibility change occurred.
+- Human balance playtests and actual Mac Safari/iPad testing remain outstanding.
+
 ### 2026-10-03 — Craters and settling on the current map
 
 - Added overlapping circular craters to the heightmap, used by both collision and drawing. Zero-height terrain represents a hole through the bottom. Cached ground paths rebuild after carving.
