@@ -99,3 +99,18 @@ Release status: automatic approval review rejected the attempted Pages deploymen
 The user explicitly approved publishing the tested combined update. Published source `1493bca` to the existing `gh-pages` branch as `a78b29d`; GitHub reports `built` and the public page serves `index-DU4EMwHG.js`. This approval resolves the earlier blocked deployment described above.
 
 Live tablet-profile Chromium verification completed a seeded five-shot match through the real controls, reached victory, and rematched with full health. It then selected High Divide and The Basin, confirmed the selection persisted when reopening the picker, cancelled without resetting, and fired through a successful turn handoff on each. The public page and assets loaded without failed HTTP requests or runtime errors. Production debug helpers are absent. Source branches remain unmerged and repository visibility is unchanged. Actual Safari/iPad and human balance checks remain open.
+
+
+## Milestone 3: Friendly solo opponent (2026-10-05, prepared)
+
+Branch `feat/solo-play` builds on the released map branch. Play opens a setup menu for Solo · Friendly or Two players plus a map. Moss is always the human in solo, Ember the computer; local play remains the initial default. Starting explicitly resets the match, while cancelling preserves it. Rematches retain mode and map.
+
+`src/game/computer.ts` cooperatively searches 116 candidate shots against copied game states using the existing fixed-step simulation, including damage, craters and settling. It scores damage and penalises self-damage, with impact distance as a tie breaker. Seed/turn-derived angle error of up to two degrees and power error of up to three points make it fallible without changing wind randomness. The search yields after at most 64 simulation steps and after each candidate; each frame runs at most 16 chunks with a soft 3 ms budget. A one-second minimum thinking delay avoids immediate firing. There are no timers or workers that could fire a stale shot after reset.
+
+The controller runs only on an unpaused computer aiming turn and is discarded after firing, replay loading or starting another match. All human input paths reject computer turns; HUD/announcements explain thinking and handoff. Pause, help, setup and backgrounding use the existing pause gate, freezing both search and thinking time. Real shot commands still use the normal wind-up/flight/settling flow.
+
+Validation: 67 simulation tests and 24 desktop/tablet Chromium browser checks passed, including complete solo matches, input gating, paused thinking, mode switches while thinking, retained map/mode on rematch and the existing local-match coverage. Nine seeded computer-versus-computer matches completed within 40 shots across all layouts; maximum-wind opening tests found useful damage without self-hits. TypeScript and production build passed. Inspected setup at 1024×768 and 390×844 and the thinking state. One local Chromium search took 73 batches/frames, 82.6 ms total, with a 7.7 ms slowest batch; the soft deadline is not a hard real-time guarantee or actual-device result.
+
+The standalone offline build passed a full local match/rematch and a human/computer exchange without external requests or runtime errors; production debug helpers are absent.
+
+Publication and source merging remain pending review/explicit approval. Human difficulty tuning, real iPad responsiveness and Safari testing remain outstanding. No new runtime dependencies or external services were added.

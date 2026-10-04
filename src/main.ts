@@ -1,4 +1,5 @@
 import './style.css';
+import { ComputerTurn } from './game/computer';
 import { MAPS, terrainHeight, type MapId } from './game/maps';
 import { createGame, fire, FixedClock, replay, RULES, setAim, type Game, type ShotCommand } from './game/simulation';
 import { PLAYER_NAMES, render } from './game/render';
@@ -9,10 +10,10 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <header class="masthead">
       <span class="brand" aria-label="Skygun">${target}<span>sky<span class="brand-light">gun</span><span class="brand-dot">✳︎</span></span></span>
       <span class="tagline">LITTLE ROBOTS. BIG SHOTS.</span>
-      <div class="header-actions"><span class="mode-label"><span></span> LOCAL DUEL</span><button id="maps" class="quiet-button maps-button" aria-label="Choose map">Maps</button><button id="help" class="quiet-button" aria-label="How to play">?</button><button id="pause" class="quiet-button" aria-label="Pause game"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button></div>
+      <div class="header-actions"><span id="mode-label" class="mode-label">LOCAL DUEL</span><button id="maps" class="quiet-button maps-button" aria-label="Set up match">Play</button><button id="help" class="quiet-button" aria-label="How to play">?</button><button id="pause" class="quiet-button" aria-label="Pause game"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button></div>
     </header>
 
-    <section class="arena" aria-label="Local two-player match">
+    <section class="arena" aria-label="Artillery match">
       <header class="scoreboard">
         <div class="player-score moss" id="player-0">
           <span class="avatar" aria-hidden="true"><i></i><i></i></span>
@@ -21,7 +22,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <div class="match-info"><span id="round">ROUND 01</span><span class="wind" id="wind" aria-label="Wind"></span></div>
         <div class="player-score ember" id="player-1">
           <span class="avatar" aria-hidden="true"><i></i><i></i></span>
-          <div class="player-info"><div class="player-heading"><span class="player-name">Ember <small>P2</small></span><span class="health-value" id="health-1">100 <small>HP</small></span></div><progress id="hp-1" max="100" value="100" aria-label="Ember health"></progress></div>
+          <div class="player-info"><div class="player-heading"><span class="player-name">Ember <small id="ember-role">P2</small></span><span class="health-value" id="health-1">100 <small>HP</small></span></div><progress id="hp-1" max="100" value="100" aria-label="Ember health"></progress></div>
         </div>
       </header>
 
@@ -43,14 +44,19 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         </fieldset>
       </div>
     </section>
-    <footer class="page-footer"><span id="keyboard-help"><kbd>←</kbd><kbd>→</kbd> angle <span class="footer-separator">/</span> <kbd>↑</kbd><kbd>↓</kbd> power <span class="footer-separator">/</span> <kbd>SPACE</kbd> fire <span class="focus-note">· focus the battlefield</span></span><span>PASS THE DEVICE. KEEP THE RIVALRY.</span></footer>
+    <footer class="page-footer"><span id="keyboard-help"><kbd>←</kbd><kbd>→</kbd> angle <span class="footer-separator">/</span> <kbd>↑</kbd><kbd>↓</kbd> power <span class="footer-separator">/</span> <kbd>SPACE</kbd> fire <span class="focus-note">· focus the battlefield</span></span><span id="play-hint">PASS THE DEVICE. KEEP THE RIVALRY.</span></footer>
     <p class="portrait-note">A little more room? Try turning your device sideways.</p>
     <p id="announcement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
-    <dialog id="pause-dialog" aria-labelledby="dialog-title"><form method="dialog"><span class="eyebrow">SKYGUN / LOCAL DUEL</span><h2 id="dialog-title">Take a breather.</h2><div id="dialog-copy"></div><button id="resume" class="primary-button" type="submit">Back to the hill <span aria-hidden="true">→</span></button></form></dialog>
+    <dialog id="pause-dialog" aria-labelledby="dialog-title"><form method="dialog"><span class="eyebrow">SKYGUN / HOW TO PLAY</span><h2 id="dialog-title">Take a breather.</h2><div id="dialog-copy"></div><button id="resume" class="primary-button" type="submit">Back to the hill <span aria-hidden="true">→</span></button></form></dialog>
     <dialog id="map-dialog" aria-labelledby="map-title">
       <form method="dialog">
-        <span class="eyebrow">THREE PLACES TO SETTLE IT</span><h2 id="map-title">Pick your battlefield.</h2>
+        <span class="eyebrow">A LITTLE FRIENDLY RIVALRY</span><h2 id="map-title">Set up a match.</h2>
         <p>Starting a new match resets both robots and restores the ground. Cancel to keep playing.</p>
+        <div class="opponent-options" role="radiogroup" aria-label="Opponent">
+          <label class="map-option"><input type="radio" name="mode" value="solo"/><span><strong>Solo · Friendly</strong><small>You play Moss. The computer plays Ember.</small></span></label>
+          <label class="map-option"><input type="radio" name="mode" value="local"/><span><strong>Two players</strong><small>Take turns on this device.</small></span></label>
+        </div>
+        <h3>Battlefield</h3>
         <div class="map-options" role="radiogroup" aria-label="Battlefield map">
           ${MAPS.map(map => {
             const points = Array.from({ length: 61 }, (_, i) => `${i * 2},${67.5 - terrainHeight(map.id, i * 20) / 10}`).join(' ');
@@ -77,6 +83,10 @@ const mapDialog = el<HTMLDialogElement>('map-dialog');
 const clock = new FixedClock();
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let game = createGame(crypto.getRandomValues(new Uint32Array(1))[0]);
+type Mode = 'local' | 'solo';
+let mode: Mode = 'local';
+let computer: ComputerTurn | null = null;
+const computerOwnsTurn = () => mode === 'solo' && game.active === 1;
 let paused = false;
 let previousTime = 0;
 let lastAnnouncement = '';
@@ -91,12 +101,15 @@ function announce(message: string): void {
 
 function updateUI(): void {
   const robot = game.robots[game.active];
-  const uiKey = [game.phase, game.turn, robot.angle, robot.power, ...game.robots.map(r => r.health), paused].join('|');
+  const uiKey = [game.phase, game.turn, robot.angle, robot.power, ...game.robots.map(r => r.health), paused, mode].join('|');
   if (uiKey === lastUiKey) return;
   lastUiKey = uiKey;
   needsRender = true;
   document.documentElement.dataset.player = String(game.active);
-  const ready = game.phase === 'aiming' && !paused;
+  const ready = game.phase === 'aiming' && !paused && !computerOwnsTurn();
+  el('mode-label').textContent = mode === 'solo' ? 'SOLO · FRIENDLY' : 'LOCAL DUEL';
+  el('ember-role').textContent = mode === 'solo' ? 'CPU' : 'P2';
+  el('play-hint').textContent = mode === 'solo' ? 'YOU ARE MOSS. MAKE IT COUNT.' : 'PASS THE DEVICE. KEEP THE RIVALRY.';
   el<HTMLFieldSetElement>('aim-controls').disabled = !ready;
   angle.value = String(robot.angle); power.value = String(robot.power);
   el('angle-value').textContent = `${robot.angle}°`;
@@ -117,6 +130,7 @@ function updateUI(): void {
   let banner = `${PLAYER_NAMES[game.active].toUpperCase()}, TAKE YOUR SHOT`;
   let title = 'Make it count.';
   let hint = 'Adjust your aim, then let it fly.';
+  if (game.phase === 'aiming' && computerOwnsTurn()) { banner = 'EMBER IS THINKING'; title = 'Sizing up the shot…'; hint = 'Your opponent is choosing an angle and power.'; }
   if (game.phase === 'windup') { banner = 'WINDING UP'; title = 'Here it comes…'; hint = 'Pull back. Let it fly.'; }
   if (game.phase === 'flight') { banner = 'EYES ON THE SKY'; title = 'There it goes…'; hint = 'A good miss teaches you something.'; }
   if (game.phase === 'impact') {
@@ -128,6 +142,7 @@ function updateUI(): void {
   if (game.phase === 'handoff') {
     banner = `PASS TO ${PLAYER_NAMES[game.active === 0 ? 1 : 0].toUpperCase()}`;
     title = 'Over to you.'; hint = 'Pass the device to the other player.';
+    if (mode === 'solo') { banner = game.active === 0 ? 'EMBER’S TURN NEXT' : 'YOUR TURN NEXT'; hint = game.active === 0 ? 'Ember will take the next shot.' : 'Get ready to aim, Moss.'; }
   }
   if (game.phase === 'settling') { banner = 'WATCH YOUR FOOTING'; title = 'Finding solid ground.'; hint = 'The next turn starts once both robots settle.'; }
   if (game.phase === 'gameover') { banner = 'THAT’S A WRAP'; title = 'Good shooting.'; hint = 'Ready for another round?'; }
@@ -143,7 +158,7 @@ function updateUI(): void {
     if (wasHidden) el('rematch').focus({ preventScroll: true });
     announce(heading + ' Play again for a fresh match.');
   } else if (game.phase === 'aiming') {
-    announce(`Player ${game.active + 1}, ${PLAYER_NAMES[game.active]}'s turn. Wind ${Math.abs(game.wind)} ${game.wind === 0 ? 'calm' : windDirection}. Moss ${game.robots[0].health} health. Ember ${game.robots[1].health} health.`);
+    announce(computerOwnsTurn() ? 'Ember is thinking. Your controls will return after its shot.' : `Player ${game.active + 1}, ${PLAYER_NAMES[game.active]}'s turn. Wind ${Math.abs(game.wind)} ${game.wind === 0 ? 'calm' : windDirection}. Moss ${game.robots[0].health} health. Ember ${game.robots[1].health} health.`);
   } else if (game.phase === 'windup') {
     announce(`${PLAYER_NAMES[game.active]} is winding up the shot.`);
   } else if (game.phase === 'impact') {
@@ -152,14 +167,14 @@ function updateUI(): void {
 }
 
 function shoot(): void {
-  if (paused || !fire(game)) return;
+  if (paused || computerOwnsTurn() || !fire(game)) return;
   clock.reset();
   updateUI();
   canvas.focus({ preventScroll: true });
 }
 
 function changeAim(): void {
-  if (paused) return;
+  if (paused || computerOwnsTurn()) return;
   setAim(game, game.active, { angle: Number(angle.value), power: Number(power.value) });
   updateUI();
 }
@@ -169,7 +184,7 @@ for (const input of [angle, power]) {
 }
 document.querySelectorAll<HTMLButtonElement>('.step-button').forEach(button => {
   button.addEventListener('click', () => {
-    if (paused) return;
+    if (paused || computerOwnsTurn()) return;
     const control = button.dataset.control as 'angle' | 'power';
     setAim(game, game.active, { [control]: game.robots[game.active][control] + Number(button.dataset.step) });
     updateUI();
@@ -184,7 +199,7 @@ fireButton.addEventListener('keydown', event => {
   }
 });
 canvas.addEventListener('keydown', event => {
-  if (paused) return;
+  if (paused || computerOwnsTurn()) return;
   if (event.code === 'Space') {
     event.preventDefault();
     if (!event.repeat) shoot();
@@ -205,7 +220,7 @@ function pause(help = false): void {
   if (mapDialog.open) { updateUI(); return; }
   el('dialog-title').textContent = help ? 'A little aim. A little luck.' : 'Take a breather.';
   el('dialog-copy').innerHTML = help
-    ? '<p>Two robots. One hill. Take turns sharing this device.</p><ol><li><strong>Set your angle and power.</strong> Higher angles arc up; more power travels farther.</li><li><strong>Read the wind.</strong> The arrow shows where it pushes. Both players share the same wind each round.</li><li><strong>Reshape the hill.</strong> Explosions carve craters. Robots drop onto the remaining ground before the next turn. Falling is harmless unless all ground below you disappears.</li><li><strong>Fire, watch, adjust.</strong> Bring the other robot to zero health. Nearby blasts hurt too — even your own!</li></ol><p class="help-note">The dotted guide shows direction, not the whole shot. A small cross marks your previous impact. Rematch restores the hill.</p>'
+    ? '<p>In Solo, you are Moss and the computer is Ember. In Two players, take turns sharing this device. Choose your opponent and map with Play.</p><ol><li><strong>Set your angle and power.</strong> Higher angles arc up; more power travels farther.</li><li><strong>Read the wind.</strong> The arrow shows where it pushes. Both players share the same wind each round.</li><li><strong>Reshape the hill.</strong> Explosions carve craters. Robots drop onto the remaining ground before the next turn. Falling is harmless unless all ground below you disappears.</li><li><strong>Fire, watch, adjust.</strong> Bring the other robot to zero health. Nearby blasts hurt too — even your own!</li></ol><p class="help-note">The dotted guide shows direction, not the whole shot. A small cross marks your previous impact. Rematch restores the hill.</p>'
     : '<p>Your match is right where you left it. Resume when both players are ready.</p>';
   if (!dialog.open) dialog.showModal();
   updateUI();
@@ -223,11 +238,13 @@ mapDialog.addEventListener('cancel', event => { if (document.hidden) event.preve
 el('maps').addEventListener('click', () => {
   paused = true; clock.reset(); previousTime = 0;
   mapDialog.querySelectorAll<HTMLInputElement>('input[name=map]').forEach(input => { input.checked = input.value === game.mapId; });
+  mapDialog.querySelectorAll<HTMLInputElement>('input[name=mode]').forEach(input => { input.checked = input.value === mode; });
   mapDialog.showModal();
   updateUI();
 });
 el('start-map').addEventListener('click', () => {
   const selected = mapDialog.querySelector<HTMLInputElement>('input[name=map]:checked')!;
+  mode = mapDialog.querySelector<HTMLInputElement>('input[name=mode]:checked')!.value as Mode;
   startMatch(selected.value as MapId);
   mapDialog.close();
 });
@@ -238,6 +255,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) pause
 window.addEventListener('pagehide', () => pause());
 window.addEventListener('pageshow', () => { if (paused && !dialog.open) pause(); });
 function startMatch(mapId: MapId): void {
+  computer = null;
   game = createGame(crypto.getRandomValues(new Uint32Array(1))[0], mapId);
   lastUiKey = ''; lastAnnouncement = ''; clock.reset(); previousTime = 0;
   updateUI();
@@ -252,15 +270,23 @@ function resize(): void {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = Math.round(bounds.width * dpr);
   canvas.height = Math.round(bounds.height * dpr);
-  render(ctx, canvas.width, canvas.height, game, reducedMotion.matches);
+  render(ctx, canvas.width, canvas.height, game, reducedMotion.matches, mode === 'solo');
 }
 new ResizeObserver(resize).observe(canvas);
 function frame(time: number): void {
-  if (!paused && previousTime) clock.advance(game, (time - previousTime) / 1000);
+  const seconds = previousTime ? (time - previousTime) / 1000 : 0;
+  if (!paused) {
+    clock.advance(game, seconds);
+    if (computerOwnsTurn() && game.phase === 'aiming') {
+      if (!computer || computer.game !== game || computer.turn !== game.turn) computer = new ComputerTurn(game);
+      const aim = computer.advance(seconds);
+      if (aim) { setAim(game, game.active, aim); fire(game); clock.reset(); computer = null; }
+    } else computer = null;
+  }
   previousTime = time;
   updateUI();
   if (needsRender || (!paused && game.phase !== 'aiming' && game.phase !== 'gameover')) {
-    render(ctx, canvas.width, canvas.height, game, reducedMotion.matches);
+    render(ctx, canvas.width, canvas.height, game, reducedMotion.matches, mode === 'solo');
     needsRender = false;
   }
   requestAnimationFrame(frame);
@@ -282,7 +308,7 @@ if (import.meta.env.DEV) {
     replayData: () => ({ mapId: game.mapId, seed: game.seed, shots: structuredClone(game.shots) }),
     loadReplay: (seed, shots, mapId) => {
       const restored = replay(seed, shots, mapId);
-      game = restored; lastUiKey = ''; clock.reset(); previousTime = 0;
+      computer = null; game = restored; lastUiKey = ''; clock.reset(); previousTime = 0;
       updateUI();
     },
   };
