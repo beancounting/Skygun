@@ -2,7 +2,15 @@
 
 Record user-visible changes, fixes, and important verification limits here with every implementation or fix. Dates use Australia/Brisbane time. Historical preparation notes below describe status at the time; confirmed releases are recorded separately.
 
-## Unreleased
+## Published — 2026-10-05
+
+- Published Solo · Friendly with explicit user approval: source `715d48d`, Pages build `8ea0fcd`. GitHub reports `built`; the public page serves `index-BZb_yE70.js`.
+- Verified automatic computer turns on all three maps, a complete solo match and rematch retaining mode/map, and switching back to manual two-player turns on the live site in tablet-profile Chromium. No runtime errors or failed HTTP requests occurred; production debug helpers are absent.
+- Updated README and PLAN with the live solo instructions. Source branches remain unmerged and repository visibility is unchanged. Actual Mac Safari/iPad testing and human difficulty tuning remain open.
+
+## Solo preparation history
+
+The entry below records pre-release work, subsequently published with approval above.
 
 ### 2026-10-05 — Solo play with a Friendly computer opponent
 

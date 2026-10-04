@@ -114,3 +114,10 @@ Validation: 67 simulation tests and 24 desktop/tablet Chromium browser checks pa
 The standalone offline build passed a full local match/rematch and a human/computer exchange without external requests or runtime errors; production debug helpers are absent.
 
 Publication and source merging remain pending review/explicit approval. Human difficulty tuning, real iPad responsiveness and Safari testing remain outstanding. No new runtime dependencies or external services were added.
+
+
+## Solo release verified (2026-10-05)
+
+The user explicitly approved publishing Solo · Friendly. Deployed source `715d48d` as Pages build `8ea0fcd`. GitHub reports `built`, and the public page serves `index-BZb_yE70.js`. Live tablet-profile Chromium verification checked automatic computer turns on Sunpatch Ridge, High Divide and The Basin, completed a solo match, rematched with full health and retained mode/map, then switched to local play and verified the second player waits for manual input. No runtime or HTTP errors occurred; production debug helpers are absent.
+
+The live entry is Play → Solo · Friendly → Start new match. Source branches remain unmerged; repository visibility is unchanged. Actual-device Safari/iPad verification and human difficulty tuning remain outstanding.
