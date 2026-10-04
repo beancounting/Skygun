@@ -92,3 +92,10 @@ Maps opens a native modal with labelled radio choices and terrain previews. It p
 Validation: 50 simulation tests, 20 desktop/tablet Chromium browser checks, TypeScript/production build and standalone offline full-match/rematch passed. Browser checks cover cancellation during flight and map selection/reset. Complete new-map matches are generated through the shared simulation and loaded through the development replay helper to exercise victory/rematch; the original map still has a full control-driven match test. Visually inspected both new battlefields at 1024×768 and the picker at 1024×768 and 390×844, with no page errors or horizontal overflow. Actual Safari/iPad and human map-balance playtests remain outstanding.
 
 Release status: automatic approval review rejected the attempted Pages deployment because the user had not explicitly approved this specific release. The live link remains on the wind-up version. Present the combined crater-and-map update for explicit publishing approval; do not retry publication without it. Source branches remain unmerged and repository visibility is unchanged.
+
+
+## Crater and map release verified (2026-10-04)
+
+The user explicitly approved publishing the tested combined update. Published source `1493bca` to the existing `gh-pages` branch as `a78b29d`; GitHub reports `built` and the public page serves `index-DU4EMwHG.js`. This approval resolves the earlier blocked deployment described above.
+
+Live tablet-profile Chromium verification completed a seeded five-shot match through the real controls, reached victory, and rematched with full health. It then selected High Divide and The Basin, confirmed the selection persisted when reopening the picker, cancelled without resetting, and fired through a successful turn handoff on each. The public page and assets loaded without failed HTTP requests or runtime errors. Production debug helpers are absent. Source branches remain unmerged and repository visibility is unchanged. Actual Safari/iPad and human balance checks remain open.

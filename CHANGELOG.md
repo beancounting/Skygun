@@ -2,6 +2,12 @@
 
 Record user-visible changes, fixes, and important verification limits here with every implementation or fix. Dates use Australia/Brisbane time. Historical preparation notes below describe status at the time; confirmed releases are recorded separately.
 
+## Published — 2026-10-04
+
+- Published the crater-and-three-map update with explicit user approval: source `1493bca`, Pages build `a78b29d`. GitHub reports the build complete; the live page serves `index-DU4EMwHG.js`.
+- Verified a complete five-shot match and rematch on the public link in tablet-profile Chromium, then selected High Divide and The Basin and fired a shot through handoff on each. No page errors or failed HTTP requests occurred; production debug helpers are absent.
+- Updated the README and plan to reflect the live release. Source branches remain unmerged; repository visibility is unchanged. Actual Mac Safari/iPad testing and human map-balance playtests remain outstanding.
+
 ## Published — 2026-10-03
 
 - Published the lever/barrel wind-up update from `2b08ebd` as Pages build `b0ef87a`. GitHub reports the build complete. Verified the new JavaScript asset and winding-up status on all five shots of a complete live match, followed by rematch, in tablet-profile Chromium with no errors.
@@ -10,7 +16,9 @@ Record user-visible changes, fixes, and important verification limits here with 
 - Updated the README with the verified play link. No download or installation is required to use the hosted game.
 - Source `main` and repository visibility remain unchanged. Actual Mac Safari and iPad verification remains outstanding; touch emulation is not device certification.
 
-## Unreleased
+## Preparation history
+
+The crater and map entries below describe their pre-release status; both were subsequently published with approval on 2026-10-04.
 
 ### 2026-10-04 — Three selectable battlefields
 

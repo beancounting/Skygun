@@ -2,11 +2,11 @@
 
 Little robots. Big shots. A small, original browser artillery game for two people sharing a device.
 
-**Prepared in this branch:** three selectable maps, with explosions that carve craters, and robots settle onto remaining ground before the next turn. Landing does not cause damage; losing all support down to the bottom eliminates a robot. Rematch restores the original hill. Aim, read the wind, fire, and bring the other robot to zero health. Blast damage can hurt either player, and wind stays the same for both turns in a round.
+**Now live:** three selectable maps, explosions that carve craters, and robots that settle onto remaining ground before the next turn. Landing does not cause damage; losing all support down to the bottom eliminates a robot. Rematch restores the original hill. Aim, read the wind, fire, and bring the other robot to zero health. Blast damage can hurt either player, and wind stays the same for both turns in a round.
 
 **[Play Skygun](https://beancounting.github.io/Skygun/)** — open the link in your browser; no download or installation required.
 
-The live link currently serves the previously approved wind-up build; the crater and map updates await publication approval. Computer play, character refinement and sound remain later work. See [the approved plan](PLAN.md). Actual Safari/iPad verification remains outstanding.
+The live link includes the crater and map updates. Use **Maps** to choose Sunpatch Ridge, High Divide or The Basin. Computer play, character refinement and sound remain later work. See [the approved plan](PLAN.md). Actual Safari/iPad verification remains outstanding.
 
 ## Downloading and opening the game
 

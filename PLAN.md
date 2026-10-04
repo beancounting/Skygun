@@ -56,7 +56,7 @@ Milestone 1 and the subsequent wind-up improvement have been implemented and pub
 - [ ] Human playtest all three layouts for pacing and fairness; adjust shapes if needed.
 - [ ] Keep random terrain deferred until the designed maps establish what is fun.
 
-Map implementation follows the user’s request to continue iterating. Publication of the combined crater/map update still requires explicit approval; automatic approval review rejected the deployment attempt on 2026-10-04.
+Map implementation follows the user’s request to continue iterating. The user explicitly approved publishing the combined crater/map update after the initial automatic approval rejection. Published source `1493bca` as Pages build `a78b29d` on 2026-10-04. Source review/merging remains separate.
 
 ## Character-refinement to-do (milestone 4)
 
