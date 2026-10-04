@@ -1,3 +1,5 @@
+import { terrainHeight, type MapId } from './maps';
+
 /** World coordinates use metres-like logical units, with y increasing upwards. */
 export const RULES = {
   width: 1200,
@@ -33,6 +35,7 @@ export type Projectile = Point & { vx: number; vy: number; age: number };
 export type Impact = Point & { kind: 'robot' | 'ground' | 'miss'; damage: [number, number] };
 export type ShotCommand = Aim & { player: PlayerId };
 export type Game = {
+  mapId: MapId;
   seed: number;
   randomState: number;
   terrain: number[];
@@ -61,11 +64,8 @@ function nextWind(game: Game): number {
   return Math.round((game.randomState / 0x100000000 * 2 - 1) * 22);
 }
 
-export function makeTerrain(): number[] {
-  return Array.from({ length: RULES.width + 1 }, (_, x) =>
-    158 + 29 * Math.sin(x / 176 + 0.5) + 70 * Math.exp(-(((x - 620) / 180) ** 2))
-      + 13 * Math.sin(x / 68),
-  );
+export function makeTerrain(mapId: MapId = 'sunpatch'): number[] {
+  return Array.from({ length: RULES.width + 1 }, (_, x) => terrainHeight(mapId, x));
 }
 
 export function groundAt(terrain: number[], x: number): number {
@@ -97,13 +97,13 @@ export function carveCrater(terrain: number[], centre: Point, radius: number = R
   return changed;
 }
 
-export function createGame(seed = 2026): Game {
-  const terrain = makeTerrain();
+export function createGame(seed = 2026, mapId: MapId = 'sunpatch'): Game {
+  const terrain = makeTerrain(mapId);
   const robot = (x: number): Robot => ({
     x, y: supportAt(terrain, x) + RULES.robotGroundOffset, health: 100, angle: 55, power: 52,
   });
   const game: Game = {
-    seed: seed >>> 0, randomState: seed >>> 0, terrain, terrainRevision: 0, fallSpeeds: [0, 0],
+    mapId, seed: seed >>> 0, randomState: seed >>> 0, terrain, terrainRevision: 0, fallSpeeds: [0, 0],
     robots: [robot(205), robot(995)],
     active: 0, turn: 1, wind: 0, phase: 'aiming', phaseTime: 0,
     projectile: null, trail: [], impact: null, lastShots: [null, null], result: null, shots: [],
@@ -319,8 +319,8 @@ export class FixedClock {
 }
 
 /** Test/debug replay: no rendering, wall clock, DOM, or external services. */
-export function replay(seed: number, shots: ShotCommand[]): Game {
-  const game = createGame(seed);
+export function replay(seed: number, shots: ShotCommand[], mapId: MapId = 'sunpatch'): Game {
+  const game = createGame(seed, mapId);
   for (const shot of shots) {
     if (!setAim(game, shot.player, shot) || !fire(game)) throw new Error('Invalid replay turn');
     for (let tick = 0; tick < 2000 && game.phase !== 'aiming' && game.phase !== 'gameover'; tick++) stepGame(game);

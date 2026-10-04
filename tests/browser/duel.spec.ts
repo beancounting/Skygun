@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { createGame, fire, setAim, stepGame } from '../../src/game/simulation';
 
 const duel = [
   { angle: 45, power: 41 },
@@ -194,4 +195,55 @@ test('pointer or touch adjustment never fires a shot or scrolls the page', async
   if (isMobile) await page.getByRole('button', { name: 'Decrease angle' }).tap();
   else await page.getByRole('button', { name: 'Decrease angle' }).click();
   expect(await page.evaluate(() => window.skygun!.snapshot().shots)).toHaveLength(0);
+});
+
+test('map picker pauses a flying shot and cancel preserves the match', async ({ page }) => {
+  await page.getByRole('button', { name: /Fire shot/ }).click();
+  await page.clock.runFor(600);
+  await page.getByRole('button', { name: 'Choose map' }).click();
+  const before = await page.evaluate(() => window.skygun!.snapshot());
+  expect(before.phase).toBe('flight');
+  await page.getByRole('radio', { name: /High Divide/ }).check();
+  await page.clock.runFor(5000);
+  expect(await page.evaluate(() => window.skygun!.snapshot())).toEqual(before);
+  await page.getByRole('button', { name: /Cancel/ }).click();
+  expect(await page.evaluate(() => window.skygun!.snapshot())).toEqual(before);
+  await page.clock.runFor(7000);
+  expect(await page.evaluate(() => window.skygun!.snapshot().turn)).toBe(2);
+});
+
+test('new maps start clean matches and rematch retains the chosen layout', async ({ page }) => {
+  for (const map of [{ id: 'divide', name: 'High Divide' }, { id: 'basin', name: 'The Basin' }] as const) {
+    await page.getByRole('button', { name: 'Choose map' }).click();
+    await page.getByRole('radio', { name: new RegExp(map.name) }).check();
+    await page.getByRole('button', { name: 'Start new match' }).click();
+    const start = await page.evaluate(() => window.skygun!.snapshot());
+    expect(start.mapId).toBe(map.id);
+    expect(start.shots).toHaveLength(0);
+    expect(start.robots.map(r => r.health)).toEqual([100, 100]);
+    await expect(page.getByRole('button', { name: /Fire shot/ })).toBeEnabled();
+    // Drive a deterministic complete match through the shared simulation, then exercise the real rematch button.
+    const game = createGame(2026, map.id);
+    for (let turn = 0; turn < 15 && game.phase !== 'gameover'; turn++) {
+      let best = { score: -Infinity, angle: 55, power: 45 };
+      for (const angle of [45, 55, 65, 75]) for (let power = 25; power <= 80; power++) {
+        const candidate = structuredClone(game), player = game.active;
+        setAim(candidate, player, { angle, power }); fire(candidate);
+        for (let t = 0; t < 2000 && candidate.phase !== 'aiming' && candidate.phase !== 'gameover'; t++) stepGame(candidate);
+        const score = game.robots[1 - player].health - candidate.robots[1 - player].health - (game.robots[player].health - candidate.robots[player].health);
+        if (score > best.score) best = { score, angle, power };
+      }
+      setAim(game, game.active, best); fire(game);
+      for (let t = 0; t < 2000 && !['aiming', 'gameover'].includes(game.phase); t++) stepGame(game);
+    }
+    expect(game.phase).toBe('gameover');
+    await page.evaluate(({ shots, mapId }) => window.skygun!.loadReplay(2026, shots, mapId), { shots: game.shots, mapId: map.id });
+    await expect(page.getByRole('button', { name: 'Play again' })).toBeVisible();
+    await page.getByRole('button', { name: 'Play again' }).click();
+    const reset = await page.evaluate(() => window.skygun!.snapshot());
+    expect(reset.mapId).toBe(map.id);
+    expect(reset.terrain).toEqual(start.terrain);
+    expect(reset.terrainRevision).toBe(0);
+    expect(reset.shots).toHaveLength(0);
+  }
 });

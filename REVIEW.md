@@ -81,3 +81,21 @@ After impact feedback, both upright carts settle against the highest remaining s
 Validation: 34 simulation tests, 16 desktop/tablet Chromium checks, TypeScript/production build, and the offline standalone full-match/rematch check passed. Cases cover overlapping and edge craters, zero floor, collision through a crater, missing support, simultaneous falls/draws, bounded settling, pause during settling, and terrain restoration on rematch. Visually inspected the tablet battlefield after four hits: both craters and lowered robot positions are readable. The seeded full-match fixture now accounts for changed spawn/support heights and aim adjustments after destruction.
 
 No extra maps, movement, falling damage, character redesign, deployment or source merge is included. Additional map ideas are in PLAN.md. Real Safari/iPad testing and human balance playtests remain outstanding. Review this milestone before updating the live site.
+
+
+## Designed maps (2026-10-04, prepared, not yet live)
+
+Branch `feat/map-selection` is based on `feat/destructible-terrain`. It adds High Divide and The Basin alongside the original Sunpatch Ridge without changing the original terrain formula. Shared map definitions drive fresh simulation heightmaps, picker previews and battlefield labels. The new layouts are symmetric; a bounded shot search confirms both players can deal at least 30 damage on fresh terrain with wind at either extreme. This establishes reachable shots, not human-tested balance.
+
+Maps opens a native modal with labelled radio choices and terrain previews. It pauses all simulation, including flights and settling. Selection alone does not discard a match: Start new match explicitly resets it, while Cancel or Escape resumes it. Rematch retains the map and restores its terrain. Replays carry map identity, with the original layout as the backwards-compatible default. No new dependencies or external assets are used.
+
+Validation: 50 simulation tests, 20 desktop/tablet Chromium browser checks, TypeScript/production build and standalone offline full-match/rematch passed. Browser checks cover cancellation during flight and map selection/reset. Complete new-map matches are generated through the shared simulation and loaded through the development replay helper to exercise victory/rematch; the original map still has a full control-driven match test. Visually inspected both new battlefields at 1024×768 and the picker at 1024×768 and 390×844, with no page errors or horizontal overflow. Actual Safari/iPad and human map-balance playtests remain outstanding.
+
+Release status: automatic approval review rejected the attempted Pages deployment because the user had not explicitly approved this specific release. The live link remains on the wind-up version. Present the combined crater-and-map update for explicit publishing approval; do not retry publication without it. Source branches remain unmerged and repository visibility is unchanged.
+
+
+## Crater and map release verified (2026-10-04)
+
+The user explicitly approved publishing the tested combined update. Published source `1493bca` to the existing `gh-pages` branch as `a78b29d`; GitHub reports `built` and the public page serves `index-DU4EMwHG.js`. This approval resolves the earlier blocked deployment described above.
+
+Live tablet-profile Chromium verification completed a seeded five-shot match through the real controls, reached victory, and rematched with full health. It then selected High Divide and The Basin, confirmed the selection persisted when reopening the picker, cancelled without resetting, and fired through a successful turn handoff on each. The public page and assets loaded without failed HTTP requests or runtime errors. Production debug helpers are absent. Source branches remain unmerged and repository visibility is unchanged. Actual Safari/iPad and human balance checks remain open.

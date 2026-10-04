@@ -168,3 +168,15 @@ dialog button { margin-top: 10px; width: 100%; }
   .page-footer { padding-top: 12px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+
+.maps-button { width: auto; padding: 0 15px; border-radius: 22px; font-size: 13px; }
+.map-options { display: grid; gap: 10px; }
+.map-option { display: flex; align-items: center; gap: 12px; padding: 12px; border: 2px solid #d2d9cb; border-radius: 12px; cursor: pointer; }
+.map-option:has(input:checked) { border-color: #3b8c79; background: #e9eddf; }
+.map-option:has(input:focus-visible) { outline: 3px solid #203f37; outline-offset: 2px; }
+.map-option input { accent-color: #3b8c79; flex-shrink: 0; }
+.map-option svg { width: 78px; flex-shrink: 0; background: #deece5; border-radius: 6px; fill: #577d56; }
+.map-option strong, .map-option small { display: block; }
+.map-option small { margin-top: 5px; font-size: 12px; line-height: 1.45; }
+.map-cancel { min-height: 44px; border: none; background: transparent; color: #203f37; font: inherit; cursor: pointer; }
+@media (max-width: 480px) { #map-dialog { padding: 20px; } .map-option { gap: 8px; } .map-option svg { width: 54px; } }
