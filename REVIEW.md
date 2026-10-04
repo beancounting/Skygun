@@ -121,3 +121,16 @@ Publication and source merging remain pending review/explicit approval. Human di
 The user explicitly approved publishing Solo · Friendly. Deployed source `715d48d` as Pages build `8ea0fcd`. GitHub reports `built`, and the public page serves `index-BZb_yE70.js`. Live tablet-profile Chromium verification checked automatic computer turns on Sunpatch Ridge, High Divide and The Basin, completed a solo match, rematched with full health and retained mode/map, then switched to local play and verified the second player waits for manual input. No runtime or HTTP errors occurred; production debug helpers are absent.
 
 The live entry is Play → Solo · Friendly → Start new match. Source branches remain unmerged; repository visibility is unchanged. Actual-device Safari/iPad verification and human difficulty tuning remain outstanding.
+
+
+## Shot feedback (2026-10-05, prepared)
+
+Branch `feat/shot-feedback` strengthens the existing render-only feedback: dark contrasting HP badges above damaged robots; a bright core, outward ring and short radial sparks on impact; and a labelled LAST SHOT cross/leader at the active player's previous non-miss impact. Badge/label scaling accounts for CSS canvas size independently of device pixel ratio, improving phone readability. The last-shot label is horizontally clamped and the cross remains at the exact historical impact, even if terrain has since changed. In-game help explains that this is history, not a trajectory prediction.
+
+Damage detail also appears in the existing turn hint. No damage badges are drawn for zero damage, and misses have no explosion or last-impact marker. Effects use existing impact phase time, so pausing preserves them. Reduced motion suppresses radial travel/rays and floating badge movement; checked two reduced-motion canvas frames 200 ms apart were pixel-identical during impact. Simulation, damage, wind, computer decisions and turn timings are unchanged.
+
+Inspected tablet (1024×768) impact/marker and phone (390×844) marker screenshots. A focused Chromium check verified a seeded hit's “Ember −40 HP” detail with no runtime errors. Actual iPad/Safari and human readability/timing checks remain outstanding. Relaxed difficulty and sound/mute are backlog items, not included. Publication and source merge remain pending approval.
+
+Browser regression checks: 23 desktop/tablet Chromium cases passed in the initial run; the final tablet solo case was reset to LOCAL DUEL by a development hot reload during the small-screen rendering edit. It passed when rerun against the finished code (35.9 s). No test or timeout changes were needed. Final TypeScript/production build passed.
+
+The final standalone offline build completed a five-shot local match/rematch and solo exchange, without runtime errors or external requests and with development helpers absent.

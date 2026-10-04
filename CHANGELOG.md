@@ -2,6 +2,18 @@
 
 Record user-visible changes, fixes, and important verification limits here with every implementation or fix. Dates use Australia/Brisbane time. Historical preparation notes below describe status at the time; confirmed releases are recorded separately.
 
+## Unreleased
+
+### 2026-10-05 — Clearer shot feedback
+
+- Strengthened existing damage numbers into contrasting HP badges above each damaged robot, and added per-robot damage detail in the turn hint. Zero-damage impacts do not show damage badges.
+- Replaced the tiny last-impact cross with an outlined cross, leader and LAST SHOT label for the active player's previous non-miss impact. The marker stays at the original impact rather than moving onto the crater floor. Labels scale up on smaller screens and stay within horizontal edges.
+- Replaced the simple impact disc with a bright core, outward ring and eight short rays. Misses have no explosion; reduced-motion mode uses a still ring/core and stationary badges without rays. Effects use existing simulation time and pause with the match.
+- Recorded Relaxed difficulty and later sound/mute work in the backlog. Shot rules, damage, computer difficulty and turn timing are unchanged.
+- Inspected tablet/phone screenshots; a Chromium check confirmed the seeded hit's 40 HP damage detail and pixel-identical reduced-motion impact frames across time. Actual iPad/Safari readability and human feedback remain open.
+- Validation: final TypeScript/production build, all 24 existing desktop/tablet Chromium cases (one rerun after an editing hot reload), and the standalone offline local match/rematch plus solo exchange passed.
+- Prepared on `feat/shot-feedback`; not yet published.
+
 ## Published — 2026-10-05
 
 - Published Solo · Friendly with explicit user approval: source `715d48d`, Pages build `8ea0fcd`. GitHub reports `built`; the public page serves `index-BZb_yE70.js`.
