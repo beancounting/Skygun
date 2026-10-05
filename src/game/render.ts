@@ -1,4 +1,5 @@
-import { MAPS } from './maps';
+import { MAPS, ROOFTOP_MAP } from './maps';
+import { drawApe, drawBanana, drawCity } from './rooftops';
 import { barrelDirection, groundAt, RULES, type Game, type PlayerId, type Point } from './simulation';
 
 const INK = '#203f37';
@@ -144,6 +145,7 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
   path(ctx, [{ x: 0, y: 468 }, { x: 120, y: 387 }, { x: 293, y: 471 }, { x: 580, y: 346 },
     { x: 744, y: 452 }, { x: 1005, y: 362 }, { x: 1200, y: 454 }, { x: 1200, y: 675 }, { x: 0, y: 675 }], '#a5c3a8');
 
+  if (game.mapId === 'rooftops') { drawCity(ctx); } else {
   const land = pathsFor(game);
   ctx.fillStyle = '#3c6550'; ctx.fill(land.fill);
   ctx.save(); ctx.clip(land.fill);
@@ -171,6 +173,8 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
     ctx.fillStyle = '#fbdea0'; ctx.beginPath(); ctx.arc(x + 6, y - 20, 3, 0, Math.PI * 2); ctx.fill();
   }
 
+  }
+
   const previous = game.lastShots[game.active];
   if (previous && previous.kind !== 'miss' && game.phase === 'aiming') {
     const x = previous.x; const y = screenY(previous.y);
@@ -191,7 +195,8 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
     ctx.fillText('LAST SHOT', 0, 6);
     ctx.restore();
   }
-  drawRobot(ctx, game, 0, reducedMotion); drawRobot(ctx, game, 1, reducedMotion);
+  const drawCharacter = game.mapId === 'rooftops' ? drawApe : drawRobot;
+  drawCharacter(ctx, game, 0, reducedMotion); drawCharacter(ctx, game, 1, reducedMotion);
 
   game.trail.forEach((point, index) => {
     ctx.globalAlpha = 0.15 + index / Math.max(1, game.trail.length) * 0.65;
@@ -206,10 +211,12 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
       ctx.fillStyle = INK; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center';
       ctx.fillText('SHOT ABOVE', x, 41);
     } else {
+      if (game.mapId === 'rooftops') { drawBanana(ctx, p.x, screenY(p.y), reducedMotion ? -0.4 : p.age * 9, 1); } else {
       ctx.shadowColor = '#fbd98c'; ctx.shadowBlur = 10;
       ctx.fillStyle = '#fff5c5'; ctx.strokeStyle = INK; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(p.x, screenY(p.y), RULES.shellRadius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       ctx.shadowBlur = 0;
+      }
     }
   }
   if (game.impact && game.phase === 'impact') {
@@ -249,9 +256,9 @@ export function render(ctx: CanvasRenderingContext2D, width: number, height: num
     });
   }
   ctx.textAlign = 'left'; ctx.fillStyle = '#dce4b9'; ctx.font = 'bold 12px ui-monospace, monospace';
-  const map = MAPS.find(map => map.id === game.mapId)!;
+  const map = game.mapId === 'rooftops' ? ROOFTOP_MAP : MAPS.find(map => map.id === game.mapId)!;
   ctx.fillText(`${map.number}  /  ${map.name.toUpperCase()}`, 28, 640);
   ctx.fillStyle = '#a7bd96'; ctx.font = '11px ui-monospace, monospace';
-  ctx.fillText(`${solo ? 'SOLO / FRIENDLY' : 'LOCAL TWO-PLAYER'}  ·  DESTRUCTIBLE TERRAIN`, 28, 660);
+  ctx.fillText(`${solo ? 'SOLO / FRIENDLY' : 'LOCAL TWO-PLAYER'}  ·  ${game.mapId === 'rooftops' ? 'SOLID SKYLINE / BANANA BUSINESS' : 'DESTRUCTIBLE TERRAIN'}`, 28, 660);
   ctx.restore();
 }

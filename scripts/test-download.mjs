@@ -43,9 +43,15 @@ try {
   await page.clock.runFor(22000);
   assert.equal(await page.locator('#turn-number').textContent(), 'TURN 03 / PLAYER 1');
   assert.equal(await page.locator('#mode-label').textContent(), 'SOLO · FRIENDLY');
+  await page.getByRole('button', { name: 'A little rooftop secret' }).click();
+  await page.getByRole('button', { name: 'Start new match' }).click();
+  await page.getByRole('button', { name: /Throw banana/ }).click();
+  await page.clock.runFor(22000);
+  assert.equal(await page.locator('#turn-number').textContent(), 'TURN 03 / PLAYER 1');
+  assert(await page.getByRole('button', { name: /Throw banana/ }).isEnabled());
   assert.deepEqual(errors, []);
   assert.deepEqual(requests, [], 'Offline download must not fetch any assets');
-  console.log('PASS: standalone document loads offline, completes a five-shot match/rematch and a solo exchange, has no runtime errors or external requests, and omits debug helpers.');
+  console.log('PASS: standalone document loads offline, completes a five-shot match/rematch and solo exchanges on terrain and rooftops, has no runtime errors or external requests, and omits debug helpers.');
 } finally {
   await browser.close();
 }

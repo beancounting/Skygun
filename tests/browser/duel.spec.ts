@@ -301,3 +301,35 @@ test('solo finishes a match, rematches in solo and retains the chosen map', asyn
   await page.getByRole('button', { name: 'Set up match' }).click();
   await expect(page.getByRole('radio', { name: /Solo/ })).toBeChecked();
 });
+
+test('rooftop secret preserves a cancelled match and supports a solo banana exchange', async ({ page }) => {
+  await page.getByRole('button', { name: 'Set up match' }).click();
+  await expect(page.getByRole('radio', { name: /Rooftop Rivals/ })).toHaveCount(0);
+  await page.getByRole('button', { name: /Cancel/ }).click();
+  await page.getByRole('button', { name: /Fire shot/ }).click();
+  await page.clock.runFor(600);
+  await page.getByRole('button', { name: 'A little rooftop secret' }).click();
+  const before = await page.evaluate(() => window.skygun!.snapshot());
+  expect(await page.locator('#map-dialog').evaluate(e => e.scrollTop)).toBe(0);
+  await expect(page.getByRole('heading', { name: 'You found Rooftop Rivals!' })).toBeFocused();
+  await expect(page.getByRole('radio', { name: /Rooftop Rivals/ })).toBeChecked();
+  await page.clock.runFor(5000);
+  await page.getByRole('button', { name: /Cancel/ }).click();
+  expect(await page.evaluate(() => window.skygun!.snapshot())).toEqual(before);
+  await page.getByRole('button', { name: 'A little rooftop secret' }).click();
+  await page.getByRole('radio', { name: /Solo/ }).check();
+  await page.getByRole('button', { name: 'Start new match' }).click();
+  const start = await page.evaluate(() => window.skygun!.snapshot());
+  expect(start.mapId).toBe('rooftops');
+  await page.getByRole('button', { name: /Throw banana/ }).click();
+  await page.clock.runFor(22000);
+  const after = await page.evaluate(() => window.skygun!.snapshot());
+  expect(after.shots).toHaveLength(2); expect(after.active).toBe(0);
+  expect(after.terrain).toEqual(start.terrain);
+  await expect(page.getByRole('button', { name: /Throw banana/ })).toBeEnabled();
+  await page.getByRole('button', { name: 'Set up match' }).click();
+  await page.getByRole('radio', { name: /Sunpatch Ridge/ }).check();
+  await page.getByRole('button', { name: 'Start new match' }).click();
+  await expect(page.getByRole('button', { name: /Fire shot/ })).toBeEnabled();
+  expect(await page.evaluate(() => window.skygun!.snapshot().mapId)).toBe('sunpatch');
+});

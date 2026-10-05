@@ -2,6 +2,17 @@
 
 Record user-visible changes, fixes, and important verification limits here with every implementation or fix. Dates use Australia/Brisbane time. Historical preparation notes below describe status at the time; confirmed releases are recorded separately.
 
+## Unreleased
+
+### 2026-10-05 — Rooftop Rivals easter egg
+
+- Added a secret star button beside the Skygun logo. It reveals Rooftop Rivals in the paused match setup without discarding the current game; Cancel preserves it and Start new match enters the skyline. The reveal stays available until page reload.
+- Added an original dusk city, twelve stepped solid buildings, rooftop ape characters, a throwing-arm wind-up and spinning banana projectiles. Reduced-motion mode suppresses arm travel and banana spin. Solo and Two players both work; rematch retains the skyline, and Play returns to the tank maps.
+- Rooftop spawns sit centred on their buildings. Building walls block shots and blasts damage the apes, but buildings do not carve or collapse in this first version. Existing tank terrain still deforms. Updated help and victory wording for the rooftop setting.
+- Verified 71 simulation tests and 26 desktop/tablet Chromium checks, then reran both rooftop browser checks after correcting the reveal dialog's initial focus/scroll. Seeded rooftop computer duels finish and replay deterministically. Final TypeScript/production build passed; inspected tablet setup, throwing/flight, phone layout, and replayed victory with a real rematch.
+- The final offline standalone build completed a full local match/rematch plus solo exchanges on both terrain and rooftops, without runtime errors or external requests.
+- Prepared on `feat/rooftop-easter-egg`; not yet published. Actual Safari/iPad playtesting, rooftop balance and future building destruction remain open.
+
 ## Published — 2026-10-05 — Shot feedback
 
 - Published the shot-feedback update with explicit user approval: source `bb00fd3`, Pages build `c1ac1d9`. GitHub reports `built`; the public page serves `index-DxJZ3KxA.js`.
