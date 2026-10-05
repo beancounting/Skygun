@@ -67,10 +67,10 @@ Map implementation follows the user’s request to continue iterating. The user 
 
 ## Rooftop easter egg (2026-10-05)
 
-- [x] Prepare a hidden Rooftop Rivals mode, revealed by the star in the Skygun logo, using original ape drawings, throwing animation, bananas and a stepped city skyline.
+- [x] Publish hidden Rooftop Rivals with explicit user approval (2026-10-05, source `69ecd99`, Pages build `94cf038`), revealed by the star in the Skygun logo, with original ape drawings, throwing animation, bananas and a stepped city skyline.
 - [x] Keep Solo and Two players available; reveal opens a paused setup menu and requires Start new match, so discovery does not discard a match.
 - [x] Start with solid buildings and existing damage/wind/turn rules. Preserve the tank maps and their crater behaviour.
-- [ ] Human playtest rooftop angles and readability; publish only after explicit approval.
+- [ ] Human playtest rooftop angles and readability on actual devices.
 - [ ] Consider destructible buildings with wall holes as a separate follow-up after the basic rooftop game feels good.
 
 ## Character-refinement to-do (milestone 4)

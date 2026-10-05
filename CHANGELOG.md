@@ -2,7 +2,16 @@
 
 Record user-visible changes, fixes, and important verification limits here with every implementation or fix. Dates use Australia/Brisbane time. Historical preparation notes below describe status at the time; confirmed releases are recorded separately.
 
-## Unreleased
+## Published — 2026-10-05 — Rooftop Rivals
+
+- Published Rooftop Rivals with explicit user approval: source `69ecd99`, Pages build `94cf038`. GitHub reports `built`; the public page serves `index-BF_BUOJn.js`.
+- Live tablet-profile Chromium verified secret discovery, a complete solo banana match and retained rematch, a local banana turn and return to tank controls, with no runtime or HTTP errors. Production debug helpers are absent.
+- The star beside the Skygun logo reveals the rooftop option. Solo and Two players share the secret skyline; buildings remain solid in this first release.
+- Updated README and PLAN with live discovery instructions. Source branches remain unmerged and repository visibility is unchanged. Actual Safari/iPad playtesting and human rooftop balance remain open.
+
+## Rooftop preparation history
+
+The entry below records pre-release work, subsequently published with approval above.
 
 ### 2026-10-05 — Rooftop Rivals easter egg
 

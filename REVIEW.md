@@ -152,3 +152,10 @@ Validation: 71 simulation tests and 26 desktop/tablet Chromium browser cases pas
 Prepared for review, not published or merged. Actual Safari/iPad and human rooftop balance checks remain outstanding. No external assets, runtime dependencies, account requirements or visibility changes were introduced.
 
 The final standalone offline artifact also passed a complete local match/rematch and solo exchanges on terrain and rooftops, with no runtime errors or external requests and no production debug helpers.
+
+
+## Rooftop release verified (2026-10-05)
+
+Published with explicit user approval from source `69ecd99` as Pages build `94cf038`. GitHub reports `built`; the live page serves `index-BF_BUOJn.js`. Live tablet-profile Chromium verified that the rooftop choice is hidden until the star is pressed, the reveal opens at the top, a complete solo banana match reaches victory, rematch restores health and retains map/mode, local rooftop turns wait for manual input, and selecting Sunpatch Ridge returns to tank controls. Inspected the live rooftop screenshot. No runtime or HTTP errors occurred, and production debug helpers are absent.
+
+The first live script checked tank-control enablement before the asynchronous dialog close completed; rerunning with Playwright's awaited enabled assertion passed. No product change was needed. Source branches remain unmerged and repository visibility is unchanged. Buildings remain solid; actual Safari/iPad and human balance checks remain outstanding.
