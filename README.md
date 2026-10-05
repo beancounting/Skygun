@@ -8,6 +8,8 @@ Little robots. Big shots. A small, original browser artillery game for solo play
 
 The live link includes **Solo · Friendly**, two-player mode, craters and all three maps. Use **Play → Solo · Friendly → Start new match** to play against the computer. You control Moss; Ember reads the wind and terrain and fires automatically. Character refinement and sound remain later work. See [the approved plan](PLAN.md). Actual Safari/iPad verification remains outstanding.
 
+**Ground-contact fix prepared in this branch:** robots lean into slopes and crater edges as they settle, with their tracks fitted to the ground. Aim angles still refer to the horizon, so tilting does not redirect a chosen shot. This fix is not live yet.
+
 ## Rooftop easter egg (live)
 
 Tap the star beside the Skygun logo to reveal **Rooftop Rivals** in the setup menu. Choose Solo or Two players and start a new match. Moss and Ember become rooftop apes throwing spinning bananas across a dusk skyline. Buildings are solid in this first version; aim high to clear them. Cancel keeps your current match, Play returns to the tank maps, and rematch keeps the skyline. The secret stays available until you reload the page.

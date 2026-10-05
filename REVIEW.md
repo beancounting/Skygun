@@ -159,3 +159,16 @@ The final standalone offline artifact also passed a complete local match/rematch
 Published with explicit user approval from source `69ecd99` as Pages build `94cf038`. GitHub reports `built`; the live page serves `index-BF_BUOJn.js`. Live tablet-profile Chromium verified that the rooftop choice is hidden until the star is pressed, the reveal opens at the top, a complete solo banana match reaches victory, rematch restores health and retains map/mode, local rooftop turns wait for manual input, and selecting Sunpatch Ridge returns to tank controls. Inspected the live rooftop screenshot. No runtime or HTTP errors occurred, and production debug helpers are absent.
 
 The first live script checked tank-control enablement before the asynchronous dialog close completed; rerunning with Playwright's awaited enabled assertion passed. No product change was needed. Source branches remain unmerged and repository visibility is unchanged. Buildings remain solid; actual Safari/iPad and human balance checks remain outstanding.
+
+
+## Robot ground-contact correction (2026-10-05, prepared)
+
+The user's screenshots showed upright carts bridging uneven ground and appearing to float. `fix/robot-ground-contact` replaces the highest-point upright placement with a supported track pose. For each stationary track centre, the solver checks integer tilts from −35° to +35° and chooses the lowest chassis height that clears the sampled terrain beneath the projected flat track underside. It samples integer terrain points and both fractional footprint endpoints. The chassis shifts slightly around that track centre as it rotates; it does not slide across the map.
+
+Target poses are computed once per settling phase. During bounded settling, angular speed is limited and ground clearance is recalculated for the intermediate orientation, preventing track penetration. Both position and tilt must finish before handoff. Missing support preserves void elimination. Initial spawns use the same model; flat rooftop spawns remain upright. The renderer rotates the body but transforms the barrel direction back into local coordinates, preserving the selected angle relative to the horizon and matching launch direction. Name labels stay horizontal. The track corner radius now gives a flat underside matching the 52-unit contact span.
+
+New checks cover analytic positive/negative/flat slopes, an asymmetric crater, nonpenetration during rotation and after landing, no extra landing damage, unchanged world aim and level rooftop poses. Existing void tests now clear integer samples around the track centre because tilted body coordinates can be fractional. Existing seeded duel controls still complete their match. Inspected actual two-shot duel and asymmetric crater-edge screenshots: both robots lean onto their contact edges. Narrow craters may still be bridged by rigid tracks; full rolling/sliding or continuous rigid-body dynamics are outside this fix.
+
+Publication and source merge remain pending explicit approval. Actual Mac Safari/iPad and human crater-edge playtesting remain open.
+
+Final validation: 77 simulation tests, 26 desktop/tablet Chromium browser checks, TypeScript/production build, and the standalone offline full local match/rematch plus solo exchanges on terrain and rooftops passed. No runtime errors or external requests occurred in the offline check.
