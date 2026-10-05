@@ -104,7 +104,7 @@ export function createGame(seed = 2026, mapId: MapId = 'sunpatch'): Game {
   });
   const game: Game = {
     mapId, seed: seed >>> 0, randomState: seed >>> 0, terrain, terrainRevision: 0, fallSpeeds: [0, 0],
-    robots: [robot(205), robot(995)],
+    robots: [robot(mapId === 'rooftops' ? 250 : 205), robot(mapId === 'rooftops' ? 950 : 995)],
     active: 0, turn: 1, wind: 0, phase: 'aiming', phaseTime: 0,
     projectile: null, trail: [], impact: null, lastShots: [null, null], result: null, shots: [],
   };
@@ -238,7 +238,7 @@ export function resolveImpact(game: Game, point: Point, kind: Impact['kind']): v
       damage[index] = Math.min(robot.health, blastDamage(Math.hypot(robot.x - point.x, robot.y - point.y) - RULES.robotRadius));
       robot.health = Math.max(0, robot.health - damage[index]);
     });
-    if (carveCrater(game.terrain, point)) game.terrainRevision++;
+    if (game.mapId !== 'rooftops' && carveCrater(game.terrain, point)) game.terrainRevision++;
   }
   game.impact = { ...point, kind, damage };
   game.lastShots[game.active] = game.impact;

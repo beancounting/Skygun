@@ -183,3 +183,5 @@ dialog button { margin-top: 10px; width: 100%; }
 
 .opponent-options { display: grid; gap: 10px; }
 #map-dialog h3 { margin: 18px 0 10px; font-size: 14px; }
+
+button.brand-dot { border: 0; background: transparent; min-width: 44px; min-height: 44px; margin: -8px -10px -8px -5px; padding: 0; vertical-align: middle; }

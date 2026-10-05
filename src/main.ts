@@ -1,6 +1,6 @@
 import './style.css';
 import { ComputerTurn } from './game/computer';
-import { MAPS, terrainHeight, type MapId } from './game/maps';
+import { MAPS, ROOFTOP_MAP, terrainHeight, type MapId } from './game/maps';
 import { createGame, fire, FixedClock, replay, RULES, setAim, type Game, type ShotCommand } from './game/simulation';
 import { PLAYER_NAMES, render } from './game/render';
 
@@ -8,7 +8,7 @@ const target = `<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <main class="game-page">
     <header class="masthead">
-      <span class="brand" aria-label="Skygun">${target}<span>sky<span class="brand-light">gun</span><span class="brand-dot">✳︎</span></span></span>
+      <span class="brand" aria-label="Skygun">${target}<span>sky<span class="brand-light">gun</span><button id="rooftop-secret" class="brand-dot" aria-label="A little rooftop secret" title="Something up there…">✳︎</button></span></span>
       <span class="tagline">LITTLE ROBOTS. BIG SHOTS.</span>
       <div class="header-actions"><span id="mode-label" class="mode-label">LOCAL DUEL</span><button id="maps" class="quiet-button maps-button" aria-label="Set up match">Play</button><button id="help" class="quiet-button" aria-label="How to play">?</button><button id="pause" class="quiet-button" aria-label="Pause game"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg></button></div>
     </header>
@@ -50,17 +50,17 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     <dialog id="pause-dialog" aria-labelledby="dialog-title"><form method="dialog"><span class="eyebrow">SKYGUN / HOW TO PLAY</span><h2 id="dialog-title">Take a breather.</h2><div id="dialog-copy"></div><button id="resume" class="primary-button" type="submit">Back to the hill <span aria-hidden="true">→</span></button></form></dialog>
     <dialog id="map-dialog" aria-labelledby="map-title">
       <form method="dialog">
-        <span class="eyebrow">A LITTLE FRIENDLY RIVALRY</span><h2 id="map-title">Set up a match.</h2>
-        <p>Starting a new match resets both robots and restores the ground. Cancel to keep playing.</p>
+        <span class="eyebrow">A LITTLE FRIENDLY RIVALRY</span><h2 id="map-title" tabindex="-1">Set up a match.</h2>
+        <p>Starting a new match resets both players and the battlefield. Cancel to keep playing.</p>
         <div class="opponent-options" role="radiogroup" aria-label="Opponent">
           <label class="map-option"><input type="radio" name="mode" value="solo"/><span><strong>Solo · Friendly</strong><small>You play Moss. The computer plays Ember.</small></span></label>
           <label class="map-option"><input type="radio" name="mode" value="local"/><span><strong>Two players</strong><small>Take turns on this device.</small></span></label>
         </div>
         <h3>Battlefield</h3>
         <div class="map-options" role="radiogroup" aria-label="Battlefield map">
-          ${MAPS.map(map => {
+          ${[...MAPS, ROOFTOP_MAP].map(map => {
             const points = Array.from({ length: 61 }, (_, i) => `${i * 2},${67.5 - terrainHeight(map.id, i * 20) / 10}`).join(' ');
-            return `<label class="map-option"><input type="radio" name="map" value="${map.id}"/><svg viewBox="0 0 120 68" aria-hidden="true"><polygon points="0,68 ${points} 120,68"/></svg><span><strong>${map.name}</strong><small>${map.description}</small></span></label>`;
+            return `<label class="map-option" ${map.id === 'rooftops' ? 'id="rooftop-option" hidden' : ''}><input type="radio" name="map" value="${map.id}"/><svg viewBox="0 0 120 68" aria-hidden="true"><polygon points="0,68 ${points} 120,68"/></svg><span><strong>${map.name}</strong><small>${map.description}</small></span></label>`;
           }).join('')}
         </div>
         <button id="start-map" class="primary-button" type="button">Start new match <span aria-hidden="true">→</span></button>
@@ -101,12 +101,15 @@ function announce(message: string): void {
 
 function updateUI(): void {
   const robot = game.robots[game.active];
-  const uiKey = [game.phase, game.turn, robot.angle, robot.power, ...game.robots.map(r => r.health), paused, mode].join('|');
+  const uiKey = [game.phase, game.turn, robot.angle, robot.power, ...game.robots.map(r => r.health), paused, mode, game.mapId].join('|');
   if (uiKey === lastUiKey) return;
   lastUiKey = uiKey;
   needsRender = true;
   document.documentElement.dataset.player = String(game.active);
   const ready = game.phase === 'aiming' && !paused && !computerOwnsTurn();
+  const rooftops = game.mapId === 'rooftops';
+  document.querySelector('.tagline')!.textContent = rooftops ? 'BIG APES. BANANA BUSINESS.' : 'LITTLE ROBOTS. BIG SHOTS.';
+  el('fire').querySelector('span')!.innerHTML = `${rooftops ? 'Throw banana' : 'Fire shot'}<small>SPACE</small>`;
   el('mode-label').textContent = mode === 'solo' ? 'SOLO · FRIENDLY' : 'LOCAL DUEL';
   el('ember-role').textContent = mode === 'solo' ? 'CPU' : 'P2';
   el('play-hint').textContent = mode === 'solo' ? 'YOU ARE MOSS. MAKE IT COUNT.' : 'PASS THE DEVICE. KEEP THE RIVALRY.';
@@ -131,7 +134,7 @@ function updateUI(): void {
   let title = 'Make it count.';
   let hint = 'Adjust your aim, then let it fly.';
   if (game.phase === 'aiming' && computerOwnsTurn()) { banner = 'EMBER IS THINKING'; title = 'Sizing up the shot…'; hint = 'Your opponent is choosing an angle and power.'; }
-  if (game.phase === 'windup') { banner = 'WINDING UP'; title = 'Here it comes…'; hint = 'Pull back. Let it fly.'; }
+  if (game.phase === 'windup') { banner = 'WINDING UP'; title = 'Here it comes…'; hint = rooftops ? 'Wind back. Let it fly.' : 'Pull back. Let it fly.'; }
   if (game.phase === 'flight') { banner = 'EYES ON THE SKY'; title = 'There it goes…'; hint = 'A good miss teaches you something.'; }
   if (game.phase === 'impact') {
     const total = game.impact!.damage[0] + game.impact!.damage[1];
@@ -152,7 +155,7 @@ function updateUI(): void {
   const wasHidden = result.hidden;
   result.hidden = game.phase !== 'gameover';
   if (!result.hidden) {
-    const heading = game.result === 'draw' ? 'A glorious draw.' : `${PLAYER_NAMES[game.result as 0 | 1]} takes the hill!`;
+    const heading = game.result === 'draw' ? 'A glorious draw.' : `${PLAYER_NAMES[game.result as 0 | 1]} takes the ${rooftops ? 'rooftops' : 'hill'}!`;
     el('result-title').textContent = heading;
     el('result-detail').textContent = `${game.shots.length} shots. ${Math.ceil(game.turn / 2)} rounds. One lovely rivalry.`;
     if (wasHidden) el('rematch').focus({ preventScroll: true });
@@ -222,6 +225,7 @@ function pause(help = false): void {
   el('dialog-copy').innerHTML = help
     ? '<p>In Solo, you are Moss and the computer is Ember. In Two players, take turns sharing this device. Choose your opponent and map with Play.</p><ol><li><strong>Set your angle and power.</strong> Higher angles arc up; more power travels farther.</li><li><strong>Read the wind.</strong> The arrow shows where it pushes. Both players share the same wind each round.</li><li><strong>Reshape the hill.</strong> Explosions carve craters. Robots drop onto the remaining ground before the next turn. Falling is harmless unless all ground below you disappears.</li><li><strong>Fire, watch, adjust.</strong> Bring the other robot to zero health. Nearby blasts hurt too — even your own!</li></ol><p class="help-note">The dotted guide shows direction, not the whole shot. The LAST SHOT label points to your previous impact; it is not a prediction. Damage badges show health lost. Rematch restores the hill.</p>'
     : '<p>Your match is right where you left it. Resume when both players are ready.</p>';
+  if (help && game.mapId === 'rooftops') el('dialog-copy').innerHTML = '<p>You found Rooftop Rivals! Two apes, one skyline, and some very questionable bananas.</p><ol><li>Set angle and power, then throw. Aim high to clear the towers.</li><li>Watch the wind and your LAST SHOT marker. Nearby blasts can hurt either ape.</li><li>Bring the other ape to zero health. Buildings stay solid in this first version.</li></ol><p>Solo and Two players both work here. Use Play to return to the tank maps.</p>';
   if (!dialog.open) dialog.showModal();
   updateUI();
 }
@@ -235,12 +239,22 @@ el('pause').addEventListener('click', () => pause());
 dialog.addEventListener('close', resume);
 mapDialog.addEventListener('close', resume);
 mapDialog.addEventListener('cancel', event => { if (document.hidden) event.preventDefault(); });
-el('maps').addEventListener('click', () => {
+function openMatchSetup(): void {
+  el('map-title').textContent = 'Set up a match.';
   paused = true; clock.reset(); previousTime = 0;
   mapDialog.querySelectorAll<HTMLInputElement>('input[name=map]').forEach(input => { input.checked = input.value === game.mapId; });
   mapDialog.querySelectorAll<HTMLInputElement>('input[name=mode]').forEach(input => { input.checked = input.value === mode; });
   mapDialog.showModal();
+  el('map-title').focus();
+  mapDialog.scrollTop = 0;
   updateUI();
+}
+el('maps').addEventListener('click', openMatchSetup);
+el('rooftop-secret').addEventListener('click', () => {
+  el('rooftop-option').hidden = false;
+  openMatchSetup();
+  mapDialog.querySelector<HTMLInputElement>('input[value=rooftops]')!.checked = true;
+  el('map-title').textContent = 'You found Rooftop Rivals!';
 });
 el('start-map').addEventListener('click', () => {
   const selected = mapDialog.querySelector<HTMLInputElement>('input[name=map]:checked')!;

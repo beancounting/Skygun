@@ -139,3 +139,23 @@ The final standalone offline build completed a five-shot local match/rematch and
 ## Shot feedback release verified (2026-10-05)
 
 The user explicitly approved publication. Deployed source `bb00fd3` as Pages build `c1ac1d9`; GitHub reports `built` and the live page serves `index-DxJZ3KxA.js`. Live tablet-profile Chromium verified the rendered −40 HP badge, matching damage detail, LAST SHOT label, pixel-identical reduced-motion impact frames 200 ms apart, and a full five-shot match/rematch. Inspected the live impact screenshot. No runtime or HTTP errors occurred, and production debug helpers are absent. Source branches remain unmerged; repository visibility is unchanged. Actual iPad/Safari readability checks remain open.
+
+
+## Rooftop Rivals easter egg (2026-10-05, prepared)
+
+Branch `feat/rooftop-easter-egg` adds a discoverable star button in the logo, with a 44 px touch target and keyboard-accessible name. It reveals/selects the otherwise hidden Rooftop Rivals map in a paused setup dialog. The title receives focus and the dialog opens at the top; it scrolls for smaller screens. Reveal alone does not reset a match. Cancel preserves it; Start new match enters the skyline. Unlock lasts for the page session, and both existing opponent choices work.
+
+The skyline uses twelve 100-unit buildings encoded in the shared heightmap collision system. Apes spawn centrally at x=250/950, fully supported. Rooftop impacts still deal normal blast damage but skip carving, so walls remain solid. Existing tank-map rules are unchanged. This first version deliberately has no wall holes, collapse or climbing; those need a later destruction model. Original Canvas ape art, throwing arms, a dusk city and spinning banana visuals reuse the normal aiming/wind/turn/computer systems. Reduced motion disables arm travel and banana rotation. Help, fire button and victory copy identify the rooftop mode.
+
+Validation: 71 simulation tests and 26 desktop/tablet Chromium browser cases passed. New tests check spawn support, building-wall collision, damage without carving, three complete seeded rooftop computer duels and deterministic replay, secret discovery/cancellation during flight, solo banana exchanges and return to tanks. After adjusting reveal focus/scroll, both rooftop browser cases passed again. TypeScript/production build passed. Inspected tablet reveal/ready/wind-up/flight and phone screenshots; a separate browser check loaded a complete rooftop replay then used the real rematch button to verify retained map and victory wording. No page errors or phone horizontal overflow occurred.
+
+Prepared for review, not published or merged. Actual Safari/iPad and human rooftop balance checks remain outstanding. No external assets, runtime dependencies, account requirements or visibility changes were introduced.
+
+The final standalone offline artifact also passed a complete local match/rematch and solo exchanges on terrain and rooftops, with no runtime errors or external requests and no production debug helpers.
+
+
+## Rooftop release verified (2026-10-05)
+
+Published with explicit user approval from source `69ecd99` as Pages build `94cf038`. GitHub reports `built`; the live page serves `index-BF_BUOJn.js`. Live tablet-profile Chromium verified that the rooftop choice is hidden until the star is pressed, the reveal opens at the top, a complete solo banana match reaches victory, rematch restores health and retains map/mode, local rooftop turns wait for manual input, and selecting Sunpatch Ridge returns to tank controls. Inspected the live rooftop screenshot. No runtime or HTTP errors occurred, and production debug helpers are absent.
+
+The first live script checked tank-control enablement before the asynchronous dialog close completed; rerunning with Playwright's awaited enabled assertion passed. No product change was needed. Source branches remain unmerged and repository visibility is unchanged. Buildings remain solid; actual Safari/iPad and human balance checks remain outstanding.

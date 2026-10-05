@@ -65,6 +65,14 @@ Map implementation follows the user’s request to continue iterating. The user 
 - [ ] Add a Relaxed opponent with more aiming error; consider naming the current difficulty Standard. Preserve the current opponent's behaviour until that change is approved.
 - [ ] Add sound with a mute button after visual feedback.
 
+## Rooftop easter egg (2026-10-05)
+
+- [x] Publish hidden Rooftop Rivals with explicit user approval (2026-10-05, source `69ecd99`, Pages build `94cf038`), revealed by the star in the Skygun logo, with original ape drawings, throwing animation, bananas and a stepped city skyline.
+- [x] Keep Solo and Two players available; reveal opens a paused setup menu and requires Start new match, so discovery does not discard a match.
+- [x] Start with solid buildings and existing damage/wind/turn rules. Preserve the tank maps and their crater behaviour.
+- [ ] Human playtest rooftop angles and readability on actual devices.
+- [ ] Consider destructible buildings with wall holes as a separate follow-up after the basic rooftop game feels good.
+
 ## Character-refinement to-do (milestone 4)
 
 - [ ] Refine the existing robot silhouettes and expressions while keeping them readable at normal gameplay size.
