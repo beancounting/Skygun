@@ -33,7 +33,7 @@ TypeScript + Vite + Canvas 2D with ordinary HTML/CSS controls; Vitest for simula
 
 Separate simulation, rendering, input/UI, computer aiming, audio, and balance constants. Fixed logical world around 1200 × 675; responsive proportional rendering and device-pixel-ratio backing buffer capped at 2. Pointer coordinates map into world units.
 
-Fixed simulation timestep, initially 1/120 second, driven by requestAnimationFrame with bounded catch-up. Gravity and wind acceleration are deterministic. Swept projectile paths account for radius and resolve the earliest terrain/robot collision. Heightmap terrain stores one height per horizontal sample. Craters lower intersecting samples and update the terrain drawing only after changes. Upright carts settle against their footprint; no rolling or wheel simulation. Bottom void eliminates a robot. Bound flight and settling times and explicitly resolve map exits.
+Fixed simulation timestep, initially 1/120 second, driven by requestAnimationFrame with bounded catch-up. Gravity and wind acceleration are deterministic. Swept projectile paths account for radius and resolve the earliest terrain/robot collision. Heightmap terrain stores one height per horizontal sample. Craters lower intersecting samples and update the terrain drawing only after changes. Carts settle and lean against their track footprint, up to 35 degrees, around a fixed track centre; no rolling, sliding or wheel simulation. World-space aiming remains independent of chassis tilt. Bottom void eliminates a robot. Bound flight and settling times and explicitly resolve map exits.
 
 Use explicit aiming, flight, impact, settling (when needed), handoff, and game-over states. Commands are gated by state and turn ownership. Computer aiming searches bounded candidate shots through the same simulation against a copied world; score damage and self-hits, introduce adjustable error, and spread work across frames. Audio starts/resumes from user gestures and is muted/paused appropriately.
 
@@ -57,6 +57,12 @@ Milestone 1 and the subsequent wind-up improvement have been implemented and pub
 - [ ] Keep random terrain deferred until the designed maps establish what is fun.
 
 Map implementation follows the user’s request to continue iterating. The user explicitly approved publishing the combined crater/map update after the initial automatic approval rejection. Published source `1493bca` as Pages build `a78b29d` on 2026-10-04. Source review/merging remains separate.
+
+## Ground contact correction (2026-10-05)
+
+- [x] Address the user's crater screenshots: fit and animate robot tilt against the terrain rather than resting an upright cart on its highest support sample.
+- [x] Keep tracks clear of terrain throughout settling, preserve world-space barrel aim, and keep rooftop apes upright on flat roofs.
+- [ ] Publish the tested fix only after explicit approval; check crater-edge appearance on actual devices.
 
 ## Feedback and difficulty follow-up (2026-10-05)
 

@@ -30,7 +30,8 @@ export type Phase = 'aiming' | 'windup' | 'flight' | 'impact' | 'settling' | 'ha
 export type Result = PlayerId | 'draw' | null;
 export type Point = { x: number; y: number };
 export type Aim = { angle: number; power: number };
-export type Robot = Point & Aim & { health: number };
+export type Robot = Point & Aim & { health: number; tilt: number };
+export type GroundPose = { x: number; groundX: number; y: number; tilt: number; supported: boolean };
 export type Projectile = Point & { vx: number; vy: number; age: number };
 export type Impact = Point & { kind: 'robot' | 'ground' | 'miss'; damage: [number, number] };
 export type ShotCommand = Aim & { player: PlayerId };
@@ -41,6 +42,7 @@ export type Game = {
   terrain: number[];
   terrainRevision: number;
   fallSpeeds: [number, number];
+  settleTargets: [GroundPose, GroundPose] | null;
   robots: [Robot, Robot];
   active: PlayerId;
   turn: number;
@@ -84,6 +86,35 @@ export function supportAt(terrain: number[], x: number): number {
   return height;
 }
 
+/** Track underside in world space. Tilt is radians, positive uphill to the right. */
+export function poseAtTilt(terrain: number[], x: number, tilt: number): GroundPose {
+  const cosine = Math.cos(tilt), slope = Math.tan(tilt);
+  const footX = x;
+  const half = RULES.robotHalfWidth * cosine;
+  const left = Math.max(0, footX - half), right = Math.min(terrain.length - 1, footX + half);
+  let y = -Infinity;
+  const sample = (px: number) => {
+    const height = groundAt(terrain, px);
+    if (height > 0) y = Math.max(y, height - slope * (px - x) + RULES.robotGroundOffset * cosine);
+  };
+  if (left <= right) {
+    sample(left); sample(right);
+    for (let px = Math.ceil(left); px <= Math.floor(right); px++) sample(px);
+  }
+  return { x: x - RULES.robotGroundOffset * Math.sin(tilt), groundX: x, y: Number.isFinite(y) ? y : -RULES.robotRadius - 1, tilt, supported: Number.isFinite(y) };
+}
+
+/** Find the lowest supported chassis pose, with a bounded lean around a fixed track centre. */
+export function groundPose(terrain: number[], x: number): GroundPose {
+  let best = poseAtTilt(terrain, x, 0);
+  if (!best.supported) return best;
+  for (let degrees = -35; degrees <= 35; degrees++) {
+    const candidate = poseAtTilt(terrain, x, degrees * Math.PI / 180);
+    if (candidate.supported && candidate.y < best.y - 0.001) best = candidate;
+  }
+  return best;
+}
+
 /** Heightmap approximation: cut down to the blast's lower arc, without caves. */
 export function carveCrater(terrain: number[], centre: Point, radius: number = RULES.craterRadius): boolean {
   if (!Number.isFinite(centre.x) || !Number.isFinite(centre.y) || !Number.isFinite(radius) || radius <= 0) return false;
@@ -99,11 +130,12 @@ export function carveCrater(terrain: number[], centre: Point, radius: number = R
 
 export function createGame(seed = 2026, mapId: MapId = 'sunpatch'): Game {
   const terrain = makeTerrain(mapId);
-  const robot = (x: number): Robot => ({
-    x, y: supportAt(terrain, x) + RULES.robotGroundOffset, health: 100, angle: 55, power: 52,
-  });
+  const robot = (x: number): Robot => {
+    const pose = groundPose(terrain, x);
+    return { x: pose.x, y: pose.y, tilt: pose.tilt, health: 100, angle: 55, power: 52 };
+  };
   const game: Game = {
-    mapId, seed: seed >>> 0, randomState: seed >>> 0, terrain, terrainRevision: 0, fallSpeeds: [0, 0],
+    mapId, seed: seed >>> 0, randomState: seed >>> 0, terrain, terrainRevision: 0, fallSpeeds: [0, 0], settleTargets: null,
     robots: [robot(mapId === 'rooftops' ? 250 : 205), robot(mapId === 'rooftops' ? 950 : 995)],
     active: 0, turn: 1, wind: 0, phase: 'aiming', phaseTime: 0,
     projectile: null, trail: [], impact: null, lastShots: [null, null], result: null, shots: [],
@@ -247,22 +279,29 @@ export function resolveImpact(game: Game, point: Point, kind: Impact['kind']): v
   game.phase = 'impact';
   game.phaseTime = 0;
   game.fallSpeeds = [0, 0];
+  game.settleTargets = null;
 }
 
 function settleRobots(game: Game): boolean {
+  game.settleTargets ??= game.robots.map(robot => groundPose(game.terrain, robot.x + RULES.robotGroundOffset * Math.sin(robot.tilt))) as [GroundPose, GroundPose];
   let settled = true;
   game.robots.forEach((robot, index) => {
-    const support = supportAt(game.terrain, robot.x);
-    const target = support > 0 ? support + RULES.robotGroundOffset : -RULES.robotRadius - 1;
-    if (robot.y > target) {
+    const target = game.settleTargets![index];
+    const turn = clamp(target.tilt - robot.tilt, -1.8 * RULES.step, 1.8 * RULES.step);
+    robot.tilt += turn;
+    // Re-evaluate clearance during rotation so the tracks never pass through ground.
+    const clearance = poseAtTilt(game.terrain, target.groundX, robot.tilt);
+    robot.x = clearance.x;
+    const floor = clearance.supported ? clearance.y : target.y;
+    if (robot.y > floor) {
       game.fallSpeeds[index] += RULES.settleGravity * RULES.step;
-      robot.y = Math.max(target, robot.y - game.fallSpeeds[index] * RULES.step);
-      // Bounded fallback guarantees handoff even if future tuning slows falls.
-      if (game.phaseTime >= RULES.maxSettling) robot.y = target;
-    }
-    if (robot.y <= target) {
+      robot.y = Math.max(floor, robot.y - game.fallSpeeds[index] * RULES.step);
+    } else robot.y = floor;
+    if (game.phaseTime >= RULES.maxSettling) { robot.x = target.x; robot.y = target.y; robot.tilt = target.tilt; }
+    if (Math.abs(robot.y - target.y) < 0.001 && Math.abs(robot.tilt - target.tilt) < 0.001) {
+      robot.x = target.x; robot.y = target.y; robot.tilt = target.tilt;
       game.fallSpeeds[index] = 0;
-      if (support === 0) robot.health = 0;
+      if (!target.supported) robot.health = 0;
     } else settled = false;
   });
   return settled;

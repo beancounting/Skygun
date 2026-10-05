@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   advanceProjectile, blastDamage, createGame, findCollision, fire, FixedClock, groundAt,
-  replay, resolveImpact, resultFor, RULES, setAim, stepGame, carveCrater, supportAt, type Game,
+  replay, resolveImpact, resultFor, RULES, setAim, stepGame, carveCrater, supportAt, groundPose, type Game,
 } from '../src/game/simulation';
 
 function finishShot(game: Game): void {
@@ -293,7 +293,7 @@ describe('destructible terrain and settling', () => {
     expect(robot.y).toBeLessThan(before);
     expect(game.active).toBe(0);
     finishShot(game);
-    expect(robot.y).toBeCloseTo(supportAt(game.terrain, robot.x) + RULES.robotGroundOffset);
+    expect(robot.y).toBeCloseTo(groundPose(game.terrain, robot.x + RULES.robotGroundOffset * Math.sin(robot.tilt)).y);
     expect(robot.health).toBe(healthAfterBlast);
     expect(game.active).toBe(1);
   });
@@ -301,7 +301,8 @@ describe('destructible terrain and settling', () => {
   it.each([false, true])('resolves lost support for both robots before deciding the result (both=%s)', both => {
     const game = createGame();
     for (const robot of both ? game.robots : [game.robots[0]]) {
-      for (let x = robot.x - 30; x <= robot.x + 30; x++) game.terrain[x] = 0;
+      const anchor = robot.x + RULES.robotGroundOffset * Math.sin(robot.tilt);
+      for (let x = Math.floor(anchor - 30); x <= Math.ceil(anchor + 30); x++) game.terrain[x] = 0;
     }
     resolveImpact(game, { x: 600, y: 600 }, 'miss');
     finishShot(game);
@@ -316,6 +317,6 @@ describe('destructible terrain and settling', () => {
     game.phase = 'settling';
     for (let i = 0; i < Math.ceil(RULES.maxSettling / RULES.step) + 2; i++) stepGame(game);
     expect(game.phase).toBe('handoff');
-    expect(game.robots[0].y).toBe(supportAt(game.terrain, game.robots[0].x) + RULES.robotGroundOffset);
+    expect(game.robots[0].y).toBe(groundPose(game.terrain, game.robots[0].x + RULES.robotGroundOffset * Math.sin(game.robots[0].tilt)).y);
   });
 });

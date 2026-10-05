@@ -58,7 +58,11 @@ function drawRobot(ctx: CanvasRenderingContext2D, game: Game, player: PlayerId, 
   const x = robot.x;
   const y = screenY(robot.y);
   const active = game.active === player && game.phase === 'aiming';
-  const direction = barrelDirection(robot, player);
+  const worldDirection = barrelDirection(robot, player);
+  const direction = {
+    x: worldDirection.x * Math.cos(robot.tilt) + worldDirection.y * Math.sin(robot.tilt),
+    y: -worldDirection.x * Math.sin(robot.tilt) + worldDirection.y * Math.cos(robot.tilt),
+  };
   const winding = game.active === player && game.phase === 'windup';
   // Pull back slowly, then release over the final 20% of the wind-up.
   const progress = winding ? Math.min(1, game.phaseTime / RULES.windupDuration) : 0;
@@ -67,12 +71,13 @@ function drawRobot(ctx: CanvasRenderingContext2D, game: Game, player: PlayerId, 
   const damaged = game.phase === 'impact' && (game.impact?.damage[player] ?? 0) > 0;
   ctx.save();
   ctx.translate(x, y);
+  ctx.rotate(-robot.tilt);
   if (damaged && !reducedMotion) ctx.translate(Math.sin(game.phaseTime * 55) * (1 - game.phaseTime / RULES.impactDuration) * 3, 0);
   ctx.globalAlpha = robot.health === 0 ? 0.55 : 1;
   ctx.lineWidth = 3;
 
   // Treads, spring legs, little armoured body, and an expressive face.
-  roundRect(ctx, -30, 10, 60, 18, 9, INK);
+  roundRect(ctx, -30, 10, 60, 18, 4, INK);
   for (const wheel of [-19, 0, 19]) {
     ctx.beginPath(); ctx.arc(wheel, 19, 5, 0, Math.PI * 2); ctx.fillStyle = '#c6d5a3'; ctx.fill();
   }
@@ -113,6 +118,7 @@ function drawRobot(ctx: CanvasRenderingContext2D, game: Game, player: PlayerId, 
     ctx.setLineDash([]);
     path(ctx, [{ x: -7, y: -64 }, { x: 7, y: -64 }, { x: 0, y: -56 }], INK);
   }
+  ctx.rotate(robot.tilt);
   ctx.textAlign = 'center'; ctx.font = 'bold 12px ui-monospace, monospace'; ctx.fillStyle = '#e3eac0';
   ctx.fillText(`P${player + 1} / ${PLAYER_NAMES[player].toUpperCase()}`, 0, 49);
   ctx.restore();
