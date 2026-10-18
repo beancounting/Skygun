@@ -2,7 +2,16 @@
 
 Record user-visible changes, fixes, and important verification limits here with every implementation or fix. Dates use Australia/Brisbane time. Historical preparation notes below describe status at the time; confirmed releases are recorded separately.
 
-## Unreleased
+## Published — Robot slope and crater contact
+
+- Published the ground-contact fix with explicit user approval: source `0f68e47`, Pages build `0eb2819`. GitHub reports `built`; the public page serves `index-B2FVo9Id.js`.
+- Restored the reviewed feature branch in the fresh workspace, installed locked dependencies, and reran all 77 simulation tests, the focused complete-match and crater/pause browser checks, and TypeScript/production build before publishing.
+- Live tablet-profile Chromium verified settled chassis rotations of 27° and 29° after crater impacts, a complete five-shot match/rematch, and a solo rooftop exchange. Inspected the live screenshot; no runtime or HTTP errors occurred and production debug helpers are absent.
+- Updated README and PLAN with the live status. Source branches remain unmerged and repository visibility is unchanged. Actual Mac Safari/iPad and human crater-edge playtesting remain open.
+
+## Ground-contact preparation history
+
+The entry below records pre-release work, subsequently published with approval above.
 
 ### 2026-10-05 — Robot slope and crater contact
 

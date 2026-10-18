@@ -8,7 +8,7 @@ Little robots. Big shots. A small, original browser artillery game for solo play
 
 The live link includes **Solo · Friendly**, two-player mode, craters and all three maps. Use **Play → Solo · Friendly → Start new match** to play against the computer. You control Moss; Ember reads the wind and terrain and fires automatically. Character refinement and sound remain later work. See [the approved plan](PLAN.md). Actual Safari/iPad verification remains outstanding.
 
-**Ground-contact fix prepared in this branch:** robots lean into slopes and crater edges as they settle, with their tracks fitted to the ground. Aim angles still refer to the horizon, so tilting does not redirect a chosen shot. This fix is not live yet.
+**Ground-contact fix now live:** robots lean into slopes and crater edges as they settle, with their tracks fitted to the ground. Aim angles still refer to the horizon, so tilting does not redirect a chosen shot.
 
 ## Rooftop easter egg (live)
 

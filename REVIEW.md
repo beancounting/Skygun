@@ -172,3 +172,12 @@ New checks cover analytic positive/negative/flat slopes, an asymmetric crater, n
 Publication and source merge remain pending explicit approval. Actual Mac Safari/iPad and human crater-edge playtesting remain open.
 
 Final validation: 77 simulation tests, 26 desktop/tablet Chromium browser checks, TypeScript/production build, and the standalone offline full local match/rematch plus solo exchanges on terrain and rooftops passed. No runtime errors or external requests occurred in the offline check.
+
+
+## Ground-contact release verified
+
+The user explicitly approved publication. After workspace startup recovered, restored the reviewed branch at `0f68e47` and installed the locked dependencies. All 77 simulation tests, two focused Chromium checks (complete match/rematch and crater settling/pause), and TypeScript/production build passed in the fresh workspace.
+
+Deployed source `0f68e47` as Pages build `0eb2819`; GitHub reports `built` and the public page serves `index-B2FVo9Id.js`. Live tablet-profile Chromium verified actual Canvas chassis rotations of 27° and 29° after two crater impacts, completed the five-shot match and rematch, and completed a solo rooftop exchange. Inspected `/workspace/artifacts/skygun/live-ground-contact.png`. No runtime or HTTP errors occurred, and production debug helpers are absent.
+
+Source branches remain unmerged and repository visibility is unchanged. Actual Mac Safari/iPad and human crater-edge playtesting remain outstanding. No further user configuration was required to publish this release.

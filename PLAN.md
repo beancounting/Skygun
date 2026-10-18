@@ -62,7 +62,8 @@ Map implementation follows the user’s request to continue iterating. The user 
 
 - [x] Address the user's crater screenshots: fit and animate robot tilt against the terrain rather than resting an upright cart on its highest support sample.
 - [x] Keep tracks clear of terrain throughout settling, preserve world-space barrel aim, and keep rooftop apes upright on flat roofs.
-- [ ] Publish the tested fix only after explicit approval; check crater-edge appearance on actual devices.
+- [x] Published with explicit user approval: source `0f68e47`, Pages build `0eb2819`.
+- [ ] Check crater-edge appearance on actual devices.
 
 ## Feedback and difficulty follow-up (2026-10-05)
 
