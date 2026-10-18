@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { MAPS } from '../src/game/maps';
-import { createGame, fire, makeTerrain, replay, RULES, setAim, stepGame, supportAt, type PlayerId } from '../src/game/simulation';
+import { createGame, fire, makeTerrain, replay, RULES, setAim, stepGame, groundPose, type PlayerId } from '../src/game/simulation';
 
 for (const map of MAPS) describe(map.name, () => {
   it('starts supported, restores cratered ground and replays deterministically', () => {
     const fresh = createGame(2026, map.id);
     expect(fresh.terrain).toHaveLength(RULES.width + 1);
     expect(fresh.terrain.every(h => Number.isFinite(h) && h > 0 && h < 400)).toBe(true);
-    for (const robot of fresh.robots) expect(robot.y).toBe(supportAt(fresh.terrain, robot.x) + RULES.robotGroundOffset);
+    for (const robot of fresh.robots) expect(robot.y).toBe(groundPose(fresh.terrain, robot.x + RULES.robotGroundOffset * Math.sin(robot.tilt)).y);
     const commands = [{ player: 0 as const, angle: 60, power: 45 }];
     const played = replay(2026, commands, map.id);
     expect(played).toEqual(replay(2026, commands, map.id));

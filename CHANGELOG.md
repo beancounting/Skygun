@@ -2,6 +2,26 @@
 
 Record user-visible changes, fixes, and important verification limits here with every implementation or fix. Dates use Australia/Brisbane time. Historical preparation notes below describe status at the time; confirmed releases are recorded separately.
 
+## Published — Robot slope and crater contact
+
+- Published the ground-contact fix with explicit user approval: source `0f68e47`, Pages build `0eb2819`. GitHub reports `built`; the public page serves `index-B2FVo9Id.js`.
+- Restored the reviewed feature branch in the fresh workspace, installed locked dependencies, and reran all 77 simulation tests, the focused complete-match and crater/pause browser checks, and TypeScript/production build before publishing.
+- Live tablet-profile Chromium verified settled chassis rotations of 27° and 29° after crater impacts, a complete five-shot match/rematch, and a solo rooftop exchange. Inspected the live screenshot; no runtime or HTTP errors occurred and production debug helpers are absent.
+- Updated README and PLAN with the live status. Source branches remain unmerged and repository visibility is unchanged. Actual Mac Safari/iPad and human crater-edge playtesting remain open.
+
+## Ground-contact preparation history
+
+The entry below records pre-release work, subsequently published with approval above.
+
+### 2026-10-05 — Robot slope and crater contact
+
+- Fixed the upright, floating-looking stance in the user's crater screenshots. Robots now lean up to 35 degrees and settle onto their track underside, with a slight body shift as they pivot around the track centre. Initial placement uses the same contact model.
+- Recheck ground clearance during rotation so tracks do not pass through terrain. Controls remain locked until both robots finish settling; loss of all support still eliminates them. No sliding, rolling or landing damage was added.
+- Compensated the drawn barrel and aim guide for body tilt so selected angles remain relative to the horizon. The projectile launches from the updated body position. Names remain horizontal; the track drawing matches the model's flat underside.
+- Rooftop characters remain upright on flat buildings. Damage, wind and computer aim-error rules are unchanged; changed physical positions can change shot outcomes.
+- Passed 77 simulation tests, 26 desktop/tablet Chromium checks, TypeScript/production build and standalone offline local match/rematch plus terrain/rooftop solo exchanges.
+- Added analytic slope/contact, asymmetric crater, animated clearance, world-aim and rooftop-level tests. Inspected a two-shot duel and asymmetric crater-edge screenshots. Prepared on `fix/robot-ground-contact`; publication and actual-device checks remain pending.
+
 ## Published — 2026-10-05 — Rooftop Rivals
 
 - Published Rooftop Rivals with explicit user approval: source `69ecd99`, Pages build `94cf038`. GitHub reports `built`; the public page serves `index-BF_BUOJn.js`.
