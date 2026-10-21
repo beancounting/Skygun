@@ -2,6 +2,26 @@
 
 Record user-visible changes, fixes, and important verification limits here with every implementation or fix. Dates use Australia/Brisbane time. Historical preparation notes below describe status at the time; confirmed releases are recorded separately.
 
+## Published — 2026-10-05
+
+- Published Solo · Friendly with explicit user approval: source `715d48d`, Pages build `8ea0fcd`. GitHub reports `built`; the public page serves `index-BZb_yE70.js`.
+- Verified automatic computer turns on all three maps, a complete solo match and rematch retaining mode/map, and switching back to manual two-player turns on the live site in tablet-profile Chromium. No runtime errors or failed HTTP requests occurred; production debug helpers are absent.
+- Updated README and PLAN with the live solo instructions. Source branches remain unmerged and repository visibility is unchanged. Actual Mac Safari/iPad testing and human difficulty tuning remain open.
+
+## Solo preparation history
+
+The entry below records pre-release work, subsequently published with approval above.
+
+### 2026-10-05 — Solo play with a Friendly computer opponent
+
+- Added Solo · Friendly alongside Two players in the new Play setup menu, on all three maps. You control Moss; Ember automatically chooses and fires its shots. The current two-player mode remains the initial default.
+- The opponent searches copied game states using the same wind, collision, crater and settling rules. It scores enemy damage, penalises self-hits and adds modest seeded aim error. Search work is split across frames, with a short thinking pause before firing.
+- Human aiming and firing are locked on computer turns. Pause/backgrounding and the setup menu freeze thinking; new matches discard pending plans. Rematches retain the opponent and map. Updated status text, help and mode labels.
+- Verified 67 simulation tests (including nine complete computer matches across all maps and strong-wind opening shots), 24 desktop/tablet Chromium browser checks and TypeScript/production build. Visually inspected the setup menu at tablet/phone sizes and the thinking state.
+- The standalone offline build also passed a full local match/rematch and a human/computer exchange, with no external requests or runtime errors.
+- Local Chromium measurement for one opening search: 73 frames, 82.6 ms total search work, slowest batch 7.7 ms. The 3 ms batch deadline is a soft target, checked between bounded simulation chunks; this is not an iPad performance claim.
+- Prepared on `feat/solo-play` for review. The live game is unchanged. Human difficulty tuning and actual Mac Safari/iPad tests remain outstanding.
+
 ## Published — 2026-10-04
 
 - Published the crater-and-three-map update with explicit user approval: source `1493bca`, Pages build `a78b29d`. GitHub reports the build complete; the live page serves `index-DU4EMwHG.js`.

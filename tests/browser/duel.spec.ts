@@ -200,7 +200,7 @@ test('pointer or touch adjustment never fires a shot or scrolls the page', async
 test('map picker pauses a flying shot and cancel preserves the match', async ({ page }) => {
   await page.getByRole('button', { name: /Fire shot/ }).click();
   await page.clock.runFor(600);
-  await page.getByRole('button', { name: 'Choose map' }).click();
+  await page.getByRole('button', { name: 'Set up match' }).click();
   const before = await page.evaluate(() => window.skygun!.snapshot());
   expect(before.phase).toBe('flight');
   await page.getByRole('radio', { name: /High Divide/ }).check();
@@ -214,7 +214,7 @@ test('map picker pauses a flying shot and cancel preserves the match', async ({ 
 
 test('new maps start clean matches and rematch retains the chosen layout', async ({ page }) => {
   for (const map of [{ id: 'divide', name: 'High Divide' }, { id: 'basin', name: 'The Basin' }] as const) {
-    await page.getByRole('button', { name: 'Choose map' }).click();
+    await page.getByRole('button', { name: 'Set up match' }).click();
     await page.getByRole('radio', { name: new RegExp(map.name) }).check();
     await page.getByRole('button', { name: 'Start new match' }).click();
     const start = await page.evaluate(() => window.skygun!.snapshot());
@@ -246,4 +246,58 @@ test('new maps start clean matches and rematch retains the chosen layout', async
     expect(reset.terrainRevision).toBe(0);
     expect(reset.shots).toHaveLength(0);
   }
+});
+
+test('solo locks human input, pauses thinking and cancels old plans on mode change', async ({ page }) => {
+  await page.getByRole('button', { name: 'Set up match' }).click();
+  await page.getByRole('radio', { name: /Solo/ }).check();
+  await page.getByRole('button', { name: 'Start new match' }).click();
+  await page.evaluate(() => window.skygun!.loadReplay(2026, [{ player: 0, angle: 45, power: 41 }]));
+  await page.clock.runFor(100);
+  await expect(page.locator('#turn-label')).toHaveText('EMBER IS THINKING');
+  await expect(page.locator('#fire')).toBeDisabled();
+  const before = await page.evaluate(() => window.skygun!.snapshot());
+  await page.locator('#game').focus();
+  await page.keyboard.press('ArrowRight'); await page.keyboard.press('Space');
+  expect(await page.evaluate(() => window.skygun!.snapshot())).toEqual(before);
+  await page.getByRole('button', { name: 'Pause game' }).click();
+  await page.clock.runFor(10000);
+  expect(await page.evaluate(() => window.skygun!.snapshot())).toEqual(before);
+  await page.getByRole('button', { name: 'Back to the hill' }).click();
+  await page.clock.runFor(15000);
+  const after = await page.evaluate(() => window.skygun!.snapshot());
+  expect(after.shots).toHaveLength(2); expect(after.active).toBe(0);
+  await expect(page.locator('#fire')).toBeEnabled();
+  await page.evaluate(() => window.skygun!.loadReplay(2026, [{ player: 0, angle: 45, power: 41 }]));
+  await page.clock.runFor(100);
+  await page.getByRole('button', { name: 'Set up match' }).click();
+  await page.getByRole('radio', { name: /Two players/ }).check();
+  await page.getByRole('button', { name: 'Start new match' }).click();
+  await page.clock.runFor(15000);
+  expect(await page.evaluate(() => window.skygun!.snapshot().shots)).toHaveLength(0);
+  await page.getByRole('button', { name: /Fire shot/ }).click();
+  await page.clock.runFor(15000);
+  expect(await page.evaluate(() => window.skygun!.snapshot().shots)).toHaveLength(1);
+  await expect(page.locator('#fire')).toBeEnabled();
+});
+
+test('solo finishes a match, rematches in solo and retains the chosen map', async ({ page }) => {
+  test.setTimeout(90000);
+  await page.getByRole('button', { name: 'Set up match' }).click();
+  await page.getByRole('radio', { name: /Solo/ }).check();
+  await page.getByRole('radio', { name: /The Basin/ }).check();
+  await page.getByRole('button', { name: 'Start new match' }).click();
+  await page.evaluate(() => window.skygun!.loadReplay(2026, [], 'basin'));
+  for (let turn = 0; turn < 12; turn++) {
+    await page.getByRole('button', { name: /Fire shot/ }).click();
+    await page.clock.runFor(22000);
+    if (await page.locator('#result').isVisible()) break;
+  }
+  await expect(page.getByRole('button', { name: 'Play again' })).toBeVisible();
+  await page.getByRole('button', { name: 'Play again' }).click();
+  expect(await page.evaluate(() => window.skygun!.snapshot().mapId)).toBe('basin');
+  await expect(page.locator('#mode-label')).toHaveText('SOLO · FRIENDLY');
+  await expect(page.locator('#fire')).toBeEnabled();
+  await page.getByRole('button', { name: 'Set up match' }).click();
+  await expect(page.getByRole('radio', { name: /Solo/ })).toBeChecked();
 });
